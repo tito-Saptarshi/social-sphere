@@ -29,7 +29,7 @@ export async function Navbar() {
     <header className="w-full bg-background border-b">
       <div className="container flex items-center justify-between h-16 px-4 sm:px-6 md:px-8 lg:px-10">
         <Link
-          href="#"
+          href="/"
           className="flex items-center gap-2 text-lg font-semibold"
           prefetch={false}
         >
@@ -40,7 +40,7 @@ export async function Navbar() {
         <nav className="hidden items-center gap-4 sm:flex">
           <ModeToggle />
           <Link
-            href="#"
+            href="/"
             className="p-2 rounded-full hover:bg-muted transition"
             prefetch={false}
           >
@@ -49,7 +49,7 @@ export async function Navbar() {
           </Link>
 
           <Link
-            href="#"
+            href="/"
             className="p-2 rounded-full hover:bg-muted transition"
             prefetch={false}
           >
@@ -89,7 +89,7 @@ export async function Navbar() {
               </Link>
               <nav className="grid gap-2">
                 <Link
-                  href="#"
+                  href="/"
                   className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
                   prefetch={false}
                 >
@@ -97,7 +97,7 @@ export async function Navbar() {
                   <span>Home</span>
                 </Link>
                 <Link
-                  href="#"
+                  href="/"
                   className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
                   prefetch={false}
                 >
@@ -105,13 +105,14 @@ export async function Navbar() {
                   <span>Notifications</span>
                 </Link>
                 <Link
-                  href="#"
+                  href="/"
                   className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
                   prefetch={false}
                 >
                   <MessageCircleIcon className="h-5 w-5" />
                   <span>Messages</span>
                 </Link>
+                
               </nav>
             </div>
           </SheetContent>
