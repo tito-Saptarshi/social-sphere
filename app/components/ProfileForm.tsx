@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -31,23 +31,22 @@ const initialState = {
 };
 
 export function ProfileForm({ userName, bio, imageUrl }: iAppProps) {
-
-    const [state, formAction] = useFormState(updateUserInfo, initialState);
-    const { toast } = useToast();
-    useEffect(() => {
-        if (state?.status === "green") {
-          toast({
-            title: "Succesfull",
-            description: state.message,
-          });
-        } else if (state?.status === "error") {
-          toast({
-            title: "Error",
-            description: state.message,
-            variant: "destructive",
-          });
-        }
-      }, [state, toast]);
+  const [state, formAction] = useFormState(updateUserInfo, initialState);
+  const { toast } = useToast();
+  useEffect(() => {
+    if (state?.status === "green") {
+      toast({
+        title: "Succesfull",
+        description: state.message,
+      });
+    } else if (state?.status === "error") {
+      toast({
+        title: "Error",
+        description: state.message,
+        variant: "destructive",
+      });
+    }
+  }, [state, toast]);
   return (
     <form action={formAction}>
       <Card className="w-full max-w-md mx-auto">
@@ -72,25 +71,28 @@ export function ProfileForm({ userName, bio, imageUrl }: iAppProps) {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="username">Username</Label>
-              <Input id="username" name="username" defaultValue={userName ?? ""} />
+              <Input
+                id="username"
+                name="username"
+                defaultValue={userName ?? ""}
+              />
+              {state?.status === "error" && (
+                <p className="text-destructive mt-1">{state.message}</p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="bio">Bio</Label>
               <Textarea
                 id="bio"
                 name="bio"
-                defaultValue={
-                  bio ??
-                  "Lorem ipsum dolor sit amet."
-                }
+                defaultValue={bio ?? "Lorem ipsum dolor sit amet."}
                 className="min-h-[100px]"
               />
             </div>
           </div>
         </CardContent>
         <CardFooter className="flex justify-end">
-      <SubmitButton text="Save"/>
-          
+          <SubmitButton text="Save" />
         </CardFooter>
       </Card>
     </form>
