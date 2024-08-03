@@ -81,7 +81,7 @@ export function ProfileForm({ userName, bio, imageUrl }: iAppProps) {
                 name="bio"
                 defaultValue={
                   bio ??
-                  "Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellendus, voluptate!"
+                  "Lorem ipsum dolor sit amet."
                 }
                 className="min-h-[100px]"
               />
