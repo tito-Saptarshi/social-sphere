@@ -5,7 +5,6 @@ import { Separator } from "@/components/ui/separator";
 import prisma from "../lib/db";
 
 async function getData(userId: string) {
-  
   const data = await prisma.user.findUnique({
     where: {
       id: userId,
@@ -13,7 +12,7 @@ async function getData(userId: string) {
     select: {
       userName: true,
       bio: true,
-      imageUrl: true
+      imageUrl: true,
     },
   });
 
@@ -21,22 +20,26 @@ async function getData(userId: string) {
 }
 
 export default async function ProfilePage() {
-    const {getUser} = getKindeServerSession();
-    const user = await getUser();
-    if(!user) redirect('/');
-    const data = await getData(user.id);
-    return (
-      <>
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+  if (!user) redirect("/");
+  const data = await getData(user.id);
+  return (
+    <>
       <div className="flex justify-between items-center mb-6 ml-5">
         <div>
           <h1 className="text-2xl font-bold">Profile Page</h1>
-          <p className="text-muted-foreground">Update your profile information.</p>
+          <p className="text-muted-foreground">
+            Update your profile information.
+          </p>
         </div>
-        
       </div>
-      <Separator className="mt-10 mb-2 "/>  
-      <ProfileForm userName={data?.userName} bio={data?.bio} imageUrl={data?.imageUrl}/>
-      </>
-    )
-      
+      <Separator className="mt-10 mb-2 " />
+      <ProfileForm
+        userName={data?.userName}
+        bio={data?.bio}
+        imageUrl={data?.imageUrl}
+      />
+    </>
+  );
 }
