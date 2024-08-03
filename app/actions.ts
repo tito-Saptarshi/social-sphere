@@ -8,7 +8,7 @@ import prisma from "./lib/db";
 export async function updateUserInfo(prevState: any, formData: FormData) {
   const { getUser } = getKindeServerSession();
   const user = await getUser();
-  
+
   if (!user) {
     return redirect("/api/auth/login");
   }
@@ -22,7 +22,7 @@ export async function updateUserInfo(prevState: any, formData: FormData) {
       },
       data: {
         userName: username,
-        bio: bio
+        bio: bio,
       },
     });
 
@@ -31,10 +31,43 @@ export async function updateUserInfo(prevState: any, formData: FormData) {
       status: "green",
     };
   } catch (e) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError)  {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === "P2002") {
         return {
           message: "This username is alredy used",
+          status: "error",
+        };
+      }
+    }
+    throw e;
+  }
+}
+
+export async function createCommunity(prevState: any, formData: FormData) {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+
+  if (!user) {
+    return redirect("/api/auth/login");
+  }
+
+  try {
+    const name = formData.get("communityName") as string;
+    const description = formData.get("communityDescription") as string;
+
+    const data = await prisma.community.create({
+      data: {
+        name: name,
+        description: description,
+        userId: user.id,
+      },
+    });
+
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2002") {
+        return {
+          message: "Subreddit alredy exist",
           status: "error",
         };
       }
