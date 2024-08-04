@@ -1,12 +1,24 @@
-"use client"
-
+/* eslint-disable @next/next/no-img-element */
+"use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
 import Link from "next/link";
 
-export function CommunityPosts() {
+interface iAppProps {
+  userId: string | undefined | null | "";
+  name: string | undefined | null | "";
+  description: string | undefined | null | "";
+  createdAt: Date;
+}
+
+export function CommunityPosts({
+  userId,
+  name,
+  description,
+  createdAt,
+}: iAppProps) {
   return (
     <div className="grid grid-cols-[70%_30%] gap-8 max-w-6xl mx-auto p-4 md:p-6">
       <div className="grid grid-cols-1 gap-6">
@@ -213,10 +225,13 @@ export function CommunityPosts() {
           </div>
         </div>
       </div>
+
+      {/* right side bar */}
+
       <div className="fixed inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center hidden">
         <div className="bg-muted rounded-lg p-6 space-y-6 w-full max-w-md">
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold">Community Page</h2>
+            <h2 className="text-2xl font-bold">{name}</h2>
             <p className="text-muted-foreground">
               Welcome to our vibrant community! Here you\&apos;ll find a wealth
               of resources, discussions, and like-minded individuals who share
