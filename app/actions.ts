@@ -4,6 +4,7 @@ import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { Prisma } from "@prisma/client";
 import { redirect } from "next/navigation";
 import prisma from "./lib/db";
+import { revalidatePath } from "next/cache";
 
 export async function updateUserInfo(prevState: any, formData: FormData) {
   const { getUser } = getKindeServerSession();
@@ -62,7 +63,7 @@ export async function createCommunity(prevState: any, formData: FormData) {
         userId: user.id,
       },
     });
-
+    redirect(`/community/${data.name}`);
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === "P2002") {
@@ -74,4 +75,43 @@ export async function createCommunity(prevState: any, formData: FormData) {
     }
     throw e;
   }
+}
+
+export async function updateCommunity(prevState: any,formData: FormData) {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+
+  if (!user) {
+    return redirect("/api/auth/login");
+  }
+  try {
+    const communityId = formData.get("communityId") as string;
+    const description = formData.get("description") as string;
+    await prisma.community.update({
+      where: {
+        id: communityId,
+      },
+      data: {
+        description: description,
+      },
+    });
+
+    return {
+      status: "green",
+      message: "Succesfully updated !",
+    };
+
+   
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2002") {
+        return {
+          message: "Subreddit alredy exist",
+          status: "error",
+        };
+      }
+    }
+    throw e;
+  }
+  
 }
