@@ -42,13 +42,13 @@ export function CommunityDescription({
         variant: "destructive",
       });
     }
-  }, [state, toast]);
+  }, [state, toast]); 
 
   return (
     <>
       {creator ? (
         <form className="mt-5" action={formAction}>
-          <p className="text-sm text-muted-foreground mb-2 ">update description</p>
+          
           <input type="hidden" name="communityId" value={communityId ?? ""} />
           <Textarea
             placeholder="Update description"

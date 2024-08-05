@@ -95,7 +95,7 @@ export async function updateCommunity(prevState: any,formData: FormData) {
         description: description,
       },
     });
-
+    await revalidatePath("/");
     return {
       status: "green",
       message: "Succesfully updated !",
