@@ -1,5 +1,4 @@
 /* eslint-disable @next/next/no-img-element */
-"use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -98,7 +97,7 @@ export function CommunityPosts({
               />
             )} */}
             <div className="flex flex-col py-5">
-              <h1 className="">About : {name}</h1>
+              <h1 className="text-muted-foreground">Community : {name}</h1>
               <Separator className="my-1" />
               <p className="mb-2">{description}</p>
               <Dialog>

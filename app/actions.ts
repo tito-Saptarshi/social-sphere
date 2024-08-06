@@ -68,7 +68,7 @@ export async function createCommunity(prevState: any, formData: FormData) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === "P2002") {
         return {
-          message: "Subreddit alredy exist",
+          message: "Community already exist",
           status: "error",
         };
       }
@@ -106,7 +106,7 @@ export async function updateCommunity(prevState: any,formData: FormData) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === "P2002") {
         return {
-          message: "Subreddit alredy exist",
+          message: "Community already exist",
           status: "error",
         };
       }
