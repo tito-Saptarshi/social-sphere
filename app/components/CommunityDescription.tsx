@@ -14,6 +14,7 @@ interface iAppProps {
   communityId: string | null | undefined | "";
   name: string | null | undefined;
   description: string | null | undefined;
+  imageUrl: string | null | undefined;
   creator: boolean;
 }
 const initalState = {
@@ -25,6 +26,7 @@ export function CommunityDescription({
   name,
   communityId,
   creator,
+  imageUrl
 }: iAppProps) {
   const [state, formAction] = useFormState(updateCommunity, initalState);
   const { toast } = useToast();
@@ -50,6 +52,8 @@ export function CommunityDescription({
         <form className="mt-5" action={formAction}>
           
           <input type="hidden" name="communityId" value={communityId ?? ""} />
+          <input type="hidden" name="communityName" value={name ?? ""} />
+          <input type="hidden" name="imageUrl" value={communityId ?? ""} />
           <Textarea
             placeholder="Update description"
             maxLength={100}
@@ -65,7 +69,7 @@ export function CommunityDescription({
           <Textarea
             placeholder="Update description"
             maxLength={100}
-            name="description"
+            name="communityDescription"
             defaultValue={description || undefined}
             className="mb-3"
             disabled

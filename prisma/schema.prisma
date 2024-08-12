@@ -34,6 +34,7 @@ model Community {
   id          String   @id @default(uuid())
   name        String   @unique
   description String?
+  imageUrl    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -51,4 +52,12 @@ model CommunityFollower {
 
   Community   Community? @relation(fields: [communityId], references: [id])
   communityId String?
+}
+
+model TestUpload {
+  id       String  @id @default(uuid())
+  userId   String
+  name     String?
+  other    String?
+  imageUrl String?
 }

@@ -13,6 +13,7 @@ async function getData(name: string) {
       description: true,
       createdAt: true,
       userId: true,
+      imageUrl: true
     }
   })
   return data;
@@ -20,12 +21,19 @@ async function getData(name: string) {
 
 
 export default async function Community({ params }: { params: { id: string } }) {
-  const data = await getData(params.id);
+  function replacePercent20(str: string | "" | null | undefined): string {
+    if (str === null || str === undefined) {
+      return "s";
+    }
+    return str.replace(/%20/g, ' ');
+  }
+  const newName = replacePercent20(params.id ?? "");
+  const data = await getData(newName);
 
   const { getUser } = getKindeServerSession();
   const user = await getUser();
 
   return ( <div>
-    <CommunityPosts communityId={data?.id} userId={data?.userId} name={data?.name} description={data?.description} createdAt={data?.createdAt} currUserId={user?.id} />
+    <CommunityPosts communityId={data?.id} userId={data?.userId} name={data?.name} description={data?.description} createdAt={data?.createdAt} currUserId={user?.id} imageUrl={data?.imageUrl}/>
   </div>)
 }

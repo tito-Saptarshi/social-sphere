@@ -11,11 +11,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Edit, UploadIcon } from "lucide-react";
-import Image from "next/image";
+import { Edit, Settings, SettingsIcon, UploadIcon } from "lucide-react";
 
 import Link from "next/link";
-import { useState } from "react";
 import { CommunityDescription } from "./CommunityDescription";
 import { Separator } from "@/components/ui/separator";
 
@@ -26,6 +24,7 @@ interface iAppProps {
   name: string | undefined | null | "";
   description: string | undefined | null | "";
   createdAt: Date | undefined;
+  imageUrl: string | null | undefined;
 }
 
 export function CommunityPosts({
@@ -35,8 +34,10 @@ export function CommunityPosts({
   description,
   createdAt,
   currUserId,
+  imageUrl
 }: iAppProps) {
   return (
+    
     <div className="max-w-[1000px] mx-auto flex gap-x-10 mt-4 mb-10 ">
       <div className="w-full lg:w-[65%] flex flex-col gap-y-5">
         <div className="flex justify-between px-4">
@@ -47,11 +48,9 @@ export function CommunityPosts({
         </div>
       </div>
 
-        
-
       {/*community side bar */}
       <div className="w-[35%] hidden lg:block">
-        <Card>
+        <Card className="min-h-96">
           <div className="bg-muted p-4 font-semibold flex justify-between gap-x-5">
             <div className="flex items-center">{name}</div>
             <Button className="text-sm font-bold py-2 px-4 rounded-full bg-blue-500 hover:bg-blue-700 text-white">
@@ -61,24 +60,31 @@ export function CommunityPosts({
 
           <div className="p-4">
             <div className="flex flex-col gap-y-5 items-center justify-center gap-x-3">
-              <Avatar className="h-30 w-30">
-                <AvatarImage
-                  src={`https://avatar.vercel.sh/${name}`}
-                  alt="@shadcn"
-                />
-                <AvatarFallback>JD</AvatarFallback>
-              </Avatar>
-              {userId === currUserId ? (
-                <Button variant="outline" size="sm">
-                  <UploadIcon className="mr-2 h-4 w-4" />
-                  Upload Photo
-                </Button>
+              {/* {userId === currUserId ? (
+                <UploadDropzone
+                className=" border-0 ut-button:bg-primary ut-button:ut-readying:bg-primary/50 ut-label:text-primary ut-button:ut-uploading:bg-primary/50 ut-button:ut-uploading:after:bg-primary
+                ut-upload-icon:
+                ut-label:hidden
+                ut-allowed-content:hidden"
+                ut-upload-icon={`https://avatar.vercel.sh/${name}`} 
+                endpoint="imageUploader"
+                onClientUploadComplete={(res) => {
+                  console.log(res);
+                }}
+              />
               ) : (
                 <Button variant="outline" disabled size="sm">
                   <UploadIcon className="mr-2 h-4 w-4 " />
                   Upload Photo
                 </Button>
-              )}
+              )} */}
+              <Avatar className="my-8 h-56 w-56">
+                <AvatarImage
+                  src={imageUrl ??  `https://avatar.vercel.sh/${name}`}
+                  alt="@shadcn"
+                />
+                <AvatarFallback>JD</AvatarFallback>
+              </Avatar>
             </div>
 
             {/* {userId === currUserId ? (
@@ -100,33 +106,52 @@ export function CommunityPosts({
               <h1 className="text-muted-foreground">Community : {name}</h1>
               <Separator className="my-1" />
               <p className="mb-2">{description}</p>
-              <Dialog>
-                <DialogTrigger asChild className="mt-10">
-                  <Button className="py-1 px-1 rounded-full">
-                    {" "}
-                    <Edit className="w-4 h-4 mx-2" /> Edit
-                  </Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Update Description</DialogTitle>
-                    <Separator />
-                    <DialogDescription>
-                      Update Description of Community : {name}
-                    </DialogDescription>
-                    {userId === currUserId ? (
+              {userId === currUserId ? (
+                <Dialog>
+                  <DialogTrigger asChild className="mt-10">
+                    <Button className="py-1 px-1 rounded-full">
+                      {" "}
+                      <Edit className="w-4 h-4 mx-2" /> Edit Description
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Update Description</DialogTitle>
+                      <Separator />
+                      <DialogDescription>
+                        Update Description of Community : {name}
+                      </DialogDescription>
                       <CommunityDescription
                         communityId={communityId}
                         name={name}
                         description={description}
+                       imageUrl={imageUrl}
                         creator={true}
                       />
-                    ) : (
-                      <></>
-                    )}
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
+                    </DialogHeader>
+                  </DialogContent>
+                </Dialog>
+              ) : (
+                <Button disabled className="py-1 px-1 rounded-full">
+                  {" "}
+                  <Edit className="w-4 h-4 mx-2" /> Edit
+                </Button>
+              )}
+            </div>
+            <div className="flex flex-row justify-end ">
+            {userId === currUserId ? (
+              <Link
+                href={`/community/${communityId}/settings`}
+                className="flex items-center"
+              >
+                <p className="mr-1">settings</p>
+                <SettingsIcon className="h-4 w-4" />
+              </Link>
+            ):(
+              <>
+              </>
+            ) }
+              
             </div>
           </div>
         </Card>

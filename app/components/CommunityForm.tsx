@@ -16,9 +16,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { useFormState } from "react-dom";
 import { createCommunity, updateUserInfo } from "../actions";
 import { useToast } from "@/components/ui/use-toast";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { SubmitButton } from "./SubmitButtons";
 import Link from "next/link";
+import { UploadButton, UploadDropzone } from "./Uploadthing";
+import Image from "next/image";
+import { log } from "console";
 
 interface iAppProps {
   userName: string | undefined | null | "";
@@ -32,6 +35,7 @@ const initialState = {
 export function CommunityForm({ userName }: iAppProps) {
   const [state, formAction] = useFormState(createCommunity, initialState);
   const { toast } = useToast();
+  const [imageUrl, setImageUrl] = useState<null | string>(null);
 
   useEffect(() => {
     if (state?.status === "green") {
@@ -49,26 +53,77 @@ export function CommunityForm({ userName }: iAppProps) {
   }, [state, toast]);
 
   return (
-
     <form action={formAction}>
       <Card className="w-full max-w-md mx-auto">
         <CardHeader>
-          <CardTitle>Edit Profile</CardTitle>
-          <CardDescription>Update your profile information.</CardDescription>
+          <CardTitle>Create Community</CardTitle>
+          <CardDescription>Create your community</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex flex-col items-center gap-4">
-            <Avatar className="h-20 w-20">
+            {imageUrl === null ? (
+              <>
+                <UploadDropzone
+                  className="ut-button:ut-readying:bg-primary/50 ut-label:text-primary ut-button:ut-uploading:bg-primary/50 ut-button:ut-uploading:after:bg-primary"
+                  endpoint="imageUploader"
+                  onClientUploadComplete={(res) => {
+                    setImageUrl(res[0].url);
+                  }}
+                  onUploadError={(error: Error) => {
+                    alert("Error");
+                    console.log(error);
+                  }}
+                />
+              </>
+            ) : (
+              <div className="flex flex-col items-end">
+                <Image
+                  src={imageUrl}
+                  alt="uploaded image"
+                  width={500}
+                  height={400}
+                  className="h-80 rounded-lg w-full object-contain -mb-5"
+                />
+                <Button
+                  className="w-20"
+                  type="button"
+                  onClick={() => setImageUrl(null)}
+                >
+                  Remove
+                </Button>
+              </div>
+            )}
+
+            <input
+              type="hidden"
+              name="imageUrl"
+              value={imageUrl ?? undefined}
+            />
+            {/* <Avatar className="h-20 w-20">
               <AvatarImage
                 src={`https://avatar.vercel.sh/${userName}`}
                 alt="@shadcn"
               />
               <AvatarFallback>JD</AvatarFallback>
             </Avatar>
-            <Button variant="outline" size="sm">
-              <UploadIcon className="mr-2 h-4 w-4" />
-              Upload Photo
-            </Button>
+            <Button
+              variant="default"
+              size="sm"
+              asChild
+              className="border-blue-800"
+            >
+              <>
+                Upload
+                <UploadButton
+                  endpoint="imageUploader"
+                  onBeforeUploadBegin={(files) => {
+                    const imageFile = files[0];
+                    handleImageUpload(imageFile);
+                    return [imageFile];
+                  }}
+                />
+              </>
+            </Button> */}
           </div>
           <div className="space-y-4">
             <div className="space-y-2">
