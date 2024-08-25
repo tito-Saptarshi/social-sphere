@@ -16,8 +16,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { useFormState } from "react-dom";
 import { updateUserInfo } from "../actions";
 import { useToast } from "@/components/ui/use-toast";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { SubmitButton } from "./SubmitButtons";
+import { UploadButton } from "./Uploadthing";
 
 interface iAppProps {
   userName: string | undefined | null | "";
@@ -31,8 +32,14 @@ const initialState = {
 };
 
 export function ProfileForm({ userName, bio, imageUrl }: iAppProps) {
+  const [newImage, setNewImage] = useState<string>("");
   const [state, formAction] = useFormState(updateUserInfo, initialState);
   const { toast } = useToast();
+
+  useEffect(() => {
+    setNewImage(imageUrl ?? "");
+  }, [imageUrl]);
+
   useEffect(() => {
     if (state?.status === "green") {
       toast({
@@ -47,26 +54,38 @@ export function ProfileForm({ userName, bio, imageUrl }: iAppProps) {
       });
     }
   }, [state, toast]);
+  
   return (
     <form action={formAction}>
       <Card className="w-full max-w-md mx-auto">
         <CardHeader>
-          <CardTitle>Edit Profile</CardTitle>
+          <CardTitle>Edit Your Profile</CardTitle>
           <CardDescription>Update your profile information.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex flex-col items-center gap-4">
-            <Avatar className="h-20 w-20">
+            <Avatar className="h-40 w-40">
               <AvatarImage
-                src={imageUrl ?? "/placeholder-user.jpg"}
+                src={newImage ?? `https://avatar.vercel.sh/${userName}`}
                 alt="@shadcn"
               />
               <AvatarFallback>JD</AvatarFallback>
             </Avatar>
-            <Button variant="outline" size="sm">
-              <UploadIcon className="mr-2 h-4 w-4" />
-              Upload Photo
+            <UploadButton
+              className="ut-button:w-28 ut-allowed-content:hidden"
+              endpoint="imageUploader"
+              onClientUploadComplete={(res) => {
+                setNewImage(res[0].url);
+              }}
+            />
+            <Button
+              onClick={() => {
+                setNewImage(imageUrl ?? "");
+              }}
+            >
+              Cancel
             </Button>
+            <input type="hidden" name="imageUrl" value={newImage} />
           </div>
           <div className="space-y-4">
             <div className="space-y-2">

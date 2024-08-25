@@ -56,15 +56,17 @@ export function CommunityUpdate({
   const [newImage, setNewImage] = useState<string>("");
   const [currComName, setCurrComName] = useState<string>("");
   const [linkName, setLinkName] = useState<string>("");
- 
+
   useEffect(() => {
     if (updatedAt) {
       setDate(updatedAt.toLocaleDateString());
     }
   }, [updatedAt]);
+
   useEffect(() => {
     setNewImage(imageUrl ?? "");
   }, [imageUrl]);
+
   useEffect(() => {
     if (state?.status === "green") {
       setCurrComName(state.comName ?? communityName ?? "");
@@ -83,6 +85,7 @@ export function CommunityUpdate({
       });
     }
   }, [state, toast, communityName, linkName]);
+  
   return (
     <div>
       <form action={formAction}>
@@ -90,7 +93,14 @@ export function CommunityUpdate({
           <CardHeader>
             <div className="flex justify-between ">
               <CardTitle>Update Community</CardTitle>
-              <Link href={`/community/${linkName}`} className="flex items-center" > <ArrowBigLeftDash className="mr-1 w-4 h-4  "/>back</Link>
+              <Link
+                href={`/community/${linkName}`}
+                className="flex items-center"
+              >
+                {" "}
+                <ArrowBigLeftDash className="mr-1 w-4 h-4  " />
+                back
+              </Link>
             </div>
             <CardDescription>Update your community</CardDescription>
           </CardHeader>

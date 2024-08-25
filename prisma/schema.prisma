@@ -15,15 +15,15 @@ datasource db {
 }
 
 model User {
-  id        String   @id
-  email     String
-  firstName String
-  lastName  String
-  imageUrl  String?
-  userName  String?  @unique
-  bio       String?
-  createdAt DateTime @default(now())
-
+  id                 String      @id
+  email              String
+  firstName          String
+  lastName           String
+  imageUrl           String?
+  userName           String?     @unique
+  bio                String?
+  createdAt          DateTime    @default(now())
+  Post               Post[]
   createdCommunities Community[]
 
   CommunityFollower   CommunityFollower? @relation(fields: [communityFollowerId], references: [id])
@@ -60,4 +60,18 @@ model TestUpload {
   name     String?
   other    String?
   imageUrl String?
+  videoUrl String?
+}
+
+model Post {
+  id          String   @id @default(uuid())
+  userId      String
+  title       String
+  description String?
+  imageUrl    String?
+  videoUrl    String?
+  createdAt   DateTime @default(now())
+
+  communityName String?
+  User          User    @relation(fields: [userId], references: [id])
 }

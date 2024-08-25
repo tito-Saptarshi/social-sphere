@@ -8,6 +8,7 @@ import { Prisma } from "@prisma/client";
 import { redirect } from "next/navigation";
 import prisma from "./lib/db";
 import { revalidatePath } from "next/cache";
+import { supabase } from "./lib/supabase";
 
 export async function testUpload(prevState: any, formData: FormData) {
   const { getUser } = getKindeServerSession();
@@ -44,6 +45,7 @@ export async function updateUserInfo(prevState: any, formData: FormData) {
 
   const username = formData.get("username") as string;
   const bio = formData.get("bio") as string;
+  const imageUrl = formData.get("imageUrl") as string;
 
   try {
     await prisma.user.update({
@@ -53,11 +55,12 @@ export async function updateUserInfo(prevState: any, formData: FormData) {
       data: {
         userName: username,
         bio: bio,
+        imageUrl: imageUrl,
       },
     });
 
     return {
-      message: "Succesfully Updated name",
+      message: "Succesfully Updated",
       status: "green",
     };
   } catch (e) {
@@ -148,5 +151,50 @@ export async function updateCommunity(prevState: any, formData: FormData) {
       }
     }
     throw e;
+  }
+}
+
+export async function createPost(formData: FormData) {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+
+  if (!user) {
+    return redirect("/api/auth/login");
+  }
+
+  try {
+    const userId = user.id as string;
+    const title = formData.get("title") as string;
+    const description = formData.get("description") as string;
+    const imageUrl = formData.get("imageUrl") as string;
+    const videoUrl = formData.get("videoFile") as File | null;
+    let videoData;
+    if (videoUrl) {
+      const { data } = await supabase.storage
+        .from("images")
+        .upload(`${videoUrl.name}-${new Date()}`, videoUrl, {
+          cacheControl: "2592000",
+          contentType: "image/png",
+        });
+
+        videoData = data;
+    } else {
+      console.log("No file uploaded");
+    }
+
+    await prisma.post.create({
+      data: {
+        userId: userId,
+        title: title,
+        description: description,
+        imageUrl: imageUrl ?? undefined,
+        videoUrl: videoData?.path,
+      },
+    });
+
+    redirect("/");
+  } catch (error) {
+    console.log(error);
+    throw error;
   }
 }

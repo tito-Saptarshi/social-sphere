@@ -8,6 +8,7 @@ async function getData() {
       creator: {
         select: {
           userName: true,
+          email: true,   
         },
       },
     },
@@ -24,7 +25,7 @@ export default async function TestNameCommunity() {
           return (
             <div key={name.name} className="py-2">
               <Link href={`/community/${name.name}`} className="flex gap-x-10"><span>
-                {name.name}</span> - <span>{name.creator?.userName}</span>
+                {name.name}</span> - <span>{name.creator?.userName}</span> - <span>{name.creator?.email}</span>
               </Link>
             </div>
           );

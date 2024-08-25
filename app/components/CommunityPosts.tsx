@@ -17,6 +17,8 @@ import Link from "next/link";
 import { CommunityDescription } from "./CommunityDescription";
 import { Separator } from "@/components/ui/separator";
 
+
+
 interface iAppProps {
   communityId: string | undefined | null | "";
   userId: string | undefined | null | "";
@@ -45,7 +47,10 @@ export function CommunityPosts({
           <Button className="text-sm font-bold py-2 px-4 rounded-full bg-blue-500 hover:bg-blue-700 text-white lg:hidden">
             + Follow
           </Button>
+          
         </div>
+        <Separator className="mx-2"/>  
+
       </div>
 
       {/*community side bar */}
