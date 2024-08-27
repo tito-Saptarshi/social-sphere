@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -19,6 +18,7 @@ import {
   ThumbsDownIcon,
 } from "lucide-react";
 import Image from "next/image";
+import { likesCount, postLikes } from "../actions";
 
 interface Props {
   id: string;
@@ -28,34 +28,9 @@ interface Props {
   description: string | null;
   imageUrl: string | null;
   videoUrl: string | null;
+  totalLikes: number;
+  likeType: boolean;
 }
-
-const posts = [
-  {
-    author: "John Doe",
-    authorAvatar: "/placeholder.svg",
-    timestamp: "2 hours ago",
-    image: "/placeholder.svg?height=300&width=400",
-    title: "My Amazing Adventure",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-    likes: 42,
-    dislikes: 5,
-    comments: 12,
-  },
-  {
-    author: "Jane Smith",
-    authorAvatar: "/placeholder.svg",
-    timestamp: "5 hours ago",
-    image: "/placeholder.svg?height=300&width=400",
-    title: "Cooking Masterclass",
-    description:
-      "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    likes: 89,
-    dislikes: 2,
-    comments: 24,
-  },
-];
 
 export function PostCard({
   id,
@@ -65,28 +40,82 @@ export function PostCard({
   imageUrl,
   profilePic,
   videoUrl,
+  totalLikes,
+  likeType,
 }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [liked, setLiked] = useState(false);
   const [disliked, setDisliked] = useState(false);
   const [isVideoVisible, setIsVideoVisible] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [newLikes, setNewLikes] = useState(totalLikes);
+  const [boolLikes, setBoolLikes] = useState(likeType);
 
-  const toggleLike = () => {
+  const likePost = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData();
+    formData.append("postId", id);
+
+    try {
+      await postLikes(formData, !boolLikes, id, userName || "", title);
+      setBoolLikes(!boolLikes);
+      setNewLikes((prevLikes) => (boolLikes ? prevLikes - 1 : prevLikes + 1));
+    } catch (error) {
+      console.error("Failed to like the post:", error);
+    }
+  };
+
+  // const likePost = async (event: React.FormEvent<HTMLFormElement>) => {
+  //   event.preventDefault();
+  //   const formData = new FormData();
+
+  //   formData.append("postId", id);
+  //   formData.append("userName", id);
+  //   formData.append("postTitle", id);
+  //   if(boolLikes) {
+  //     await postLikes(formData, false, id, userName || "", title);
+  //     setBoolLikes(false);
+  //   } else {
+  //     await postLikes(formData, true, id, userName || "", title);
+  //     setBoolLikes(true);
+  //   }
+  // }
+
+  console.log("postCard boolean check " + likeType);
+
+  const toggleLike = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); // Prevent the form from reloading the page
+
+    const formData = new FormData();
+    formData.append("postId", id);
+    formData.append("isLiked", liked.toString());
+
+    // Update local state for immediate feedback
     setLiked(!liked);
-    if (disliked) setDisliked(false);
+    setNewLikes((prevLikes) => (liked ? prevLikes - 1 : prevLikes + 1));
+
+    // If disliked, reset dislike
+    if (disliked) {
+      setDisliked(false);
+      setNewLikes((prevLikes) => prevLikes + 1);
+    }
+
+    // Call server action to update likes in the database
+    await likesCount(formData);
   };
 
   const toggleDislike = () => {
     setDisliked(!disliked);
-    if (liked) setLiked(false);
+    if (liked) {
+      setLiked(false);
+      setNewLikes((prevLikes) => prevLikes - 1);
+    }
   };
 
   const handleToggleMedia = () => {
     setIsVideoVisible(!isVideoVisible);
   };
 
-  // Use Intersection Observer to play/pause video
   useEffect(() => {
     if (!videoRef.current) return;
 
@@ -100,16 +129,16 @@ export function PostCard({
           }
         });
       },
-      { threshold: 0.5 } // Adjust this threshold as needed
+      { threshold: 0.5 }
     );
 
     observer.observe(videoRef.current);
 
-    // Cleanup observer on unmount
     return () => {
       observer.disconnect();
     };
   }, [isVideoVisible]);
+
   return (
     <Card className="mb-4 lg:mr-5 mx-auto w-full lg:w-4/5">
       <CardHeader className="flex flex-row items-center gap-4">
@@ -122,13 +151,13 @@ export function PostCard({
         </Avatar>
         <div>
           <h3 className="font-bold">{userName}</h3>
-          <p className="text-sm text-muted-foreground">Date</p>
+          <p className="text-sm text-muted-foreground">{boolLikes ? "true" : "false"}</p>
+          <p className="text-sm text-muted-foreground">{likeType ? "true fetch" : "false fetch"}</p>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <h4 className="font-bold text-lg">{title}</h4>
 
-        {/* Media container */}
         {(videoUrl || imageUrl) && (
           <div className="relative w-full h-[300px] lg:h-[400px] bg-black overflow-hidden">
             {videoUrl && isVideoVisible ? (
@@ -148,7 +177,6 @@ export function PostCard({
               />
             ) : null}
 
-            {/* Toggle button overlay for switching media */}
             {imageUrl && videoUrl && (
               <button
                 className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-200"
@@ -166,41 +194,42 @@ export function PostCard({
 
         <p>
           {expanded ? description : `${description?.slice(0, 100)}...`}
-          {description !== null &&
-            description !== undefined &&
-            description.length > 100 && (
-              <button
-                onClick={() => setExpanded(!expanded)}
-                className="text-primary font-semibold ml-2"
-              >
-                {expanded ? "Show less" : "Show more"}
-              </button>
-            )}
+          {description && description.length > 100 && (
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="text-primary font-semibold ml-2"
+            >
+              {expanded ? "Show less" : "Show more"}
+            </button>
+          )}
         </p>
       </CardContent>
       <CardFooter className="flex justify-between">
         <div className="flex space-x-2">
-          <Button variant="ghost" size="sm" onClick={toggleLike}>
-            <HeartIcon
-              className={`w-5 h-5 mr-1 ${
-                liked ? "text-red-500 fill-red-500" : ""
-              }`}
-            />
-            {posts[0].likes}
-          </Button>
+          <form onSubmit={likePost}>
+            <input type="hidden" name="userName" value={userName || ""} />
+            <input type="hidden" name="postTitle" value={title || ""} />
+            <Button variant="ghost" size="sm" type="submit">
+              <HeartIcon
+                className={`w-5 h-5 mr-1 ${
+                  boolLikes  ? "text-red-500 fill-red-500" : ""
+                }`}
+              />
+              {newLikes}
+            </Button>
+          </form>
           <Button variant="ghost" size="sm" onClick={toggleDislike}>
             <ThumbsDownIcon
               className={`w-5 h-5 mr-1 ${
                 disliked ? "text-blue-500 fill-blue-500" : ""
               }`}
             />
-            {posts[0].dislikes}
           </Button>
         </div>
         <div className="flex space-x-2">
           <Button variant="ghost" size="sm">
             <MessageCircleIcon className="w-5 h-5 mr-1" />
-            {posts[0].comments}
+            {/* Replace with actual comment count */}0
           </Button>
           <Button variant="ghost" size="sm">
             <ShareIcon className="w-5 h-5 mr-1" />

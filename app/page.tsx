@@ -6,9 +6,11 @@ import { MenuIcon, PlusCircleIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { FloatingActionButton } from "./components/FloatingActionButton";
 import prisma from "./lib/db";
+import { tree } from "next/dist/build/templates/app-page";
+import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 
 async function getData() {
-  const [count, data] = await prisma.$transaction([
+  const [count ,data ] = await prisma.$transaction([
     prisma.post.count(),
     prisma.post.findMany({
       select: {
@@ -24,6 +26,13 @@ async function getData() {
             imageUrl: true,
           },
         },
+        Like: {
+          select: {
+            id: true,
+            liked: true,
+            userId: true, 
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
@@ -34,9 +43,27 @@ async function getData() {
   return { count, data };
 }
 
+async function getBoolean(postId: string, userId: string) {
+  const like = await prisma.like.findFirst({
+    where: {
+      postId: postId,
+      userId: userId,
+    }, select : {
+      liked: true,
+      id: true,
+    }
+  })
+
+  return like;
+}
+
 export default async function Home() {
   const loading = false;
   const { count, data } = await getData();
+
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+
   return (
     <div className="container mx-auto p-4 max-w-[1250px]">
       <h1 className="text-2xl font-bold mb-4 text-center">FunkyMedia</h1>
@@ -58,7 +85,10 @@ export default async function Home() {
           {loading ? (
             <p>Loading...</p>
           ) : (
-            data.map((post) => (
+            data.map((post) => {
+              let isLiked2 = post.Like.some(like => like.liked);
+              const isLiked = post.Like.some(like => like.userId === user?.id && like.liked);
+              return (
               <PostCard
                 key={post.id}
                 id={post.id}
@@ -68,8 +98,14 @@ export default async function Home() {
                 description={post.description}
                 imageUrl={post.imageUrl}
                 videoUrl={post.videoUrl}
-              />
-            ))
+                likeType={isLiked}
+                totalLikes={post.Like.reduce((acc, vote) => {
+                  if (vote.liked) return acc + 1;
+                  
+                  return acc;
+                }, 0)}
+              />)
+})
           )}
         </div>
         <div className="hidden md:block">

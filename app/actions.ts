@@ -9,6 +9,8 @@ import { redirect } from "next/navigation";
 import prisma from "./lib/db";
 import { revalidatePath } from "next/cache";
 import { supabase } from "./lib/supabase";
+import { rule } from "postcss";
+import { log } from "console";
 
 export async function testUpload(prevState: any, formData: FormData) {
   const { getUser } = getKindeServerSession();
@@ -177,7 +179,7 @@ export async function createPost(formData: FormData) {
           contentType: "image/png",
         });
 
-        videoData = data;
+      videoData = data;
     } else {
       console.log("No file uploaded");
     }
@@ -197,4 +199,314 @@ export async function createPost(formData: FormData) {
     console.log(error);
     throw error;
   }
+}
+
+// export async function likePost(formData: FormData) {
+//   const { getUser } = getKindeServerSession();
+//   const user = await getUser();
+
+//   if (!user) {
+//     return redirect("/api/auth/login");
+//   }
+
+//   const postId = formData.get("postId") as string;
+//   const voteDirection = formData.get("voteDirection") as string;
+//   const vote = await prisma.vote.findFirst({
+//     where: {
+//       postId: postId,
+//       userId: user.id,
+//     },
+//   });
+//   let likes = await prisma.vote.findFirst({
+//     where: {
+//       postId: postId,
+//     },
+//     select : {
+//       totalLikes: true,
+//     }
+//   });
+
+//   const totalLikes = likes?.totalLikes ?? 0;
+
+//   if (vote) {
+//     if (vote.liked === true) {
+
+//     }
+//     else {
+
+//     }
+//   } else {
+//     await prisma.vote.create({
+//       data: {
+//         totalLikes: totalLikes + 1,
+
+//         userId: user.id,
+//         postId: postId,
+//       },
+//     });
+//   }
+
+// }
+
+// export async function likesCount(formData: FormData) {
+//   const { getUser } = getKindeServerSession();
+//   const user = await getUser();
+
+//   if (!user) {
+//     return redirect("/api/auth/login");
+//   }
+
+//   try {
+//     const postId = formData.get("postId") as string;
+//     const totalLikesStr  = formData.get("totalLikes");
+
+//     if (typeof totalLikesStr === "string") {
+//       let totalLikes = Number(totalLikesStr);
+
+//        await prisma.post.update({
+//         where: {
+//           id: postId
+//         },
+//         data: {
+//           likes: totalLikes,
+//         }
+//       });
+
+//       return revalidatePath("/")
+//     } else {
+//       console.log("Invalid title format");
+//     }
+//   } catch (error) {
+//     console.log(error);
+//   }
+// }
+
+// export async function likesCount(formData: FormData) {
+//   const { getUser } = getKindeServerSession();
+//   const user = await getUser();
+
+//   if (!user) {
+//     return redirect("/api/auth/login");
+//   }
+
+//   try {
+//     const postId = formData.get("postId") as string;
+//     const isLikedStr = formData.get("isLiked");
+
+//     // Ensure we have all required data
+//     if (!postId || typeof isLikedStr !== "string") {
+//       console.log("Invalid data received");
+//       return;
+//     }
+
+//     const isLiked = isLikedStr === "true";
+
+//     // Fetch the current likes from the database
+//     const post = await prisma.post.findUnique({
+//       where: {
+//         id: postId,
+//       },
+//     });
+
+//     if (!post) {
+//       console.log("Post not found");
+//       return;
+//     }
+
+//     const updatedLikes = isLiked ? post.likes + 1 : post.likes - 1;
+
+//     // Update the post with the new likes count
+//     await prisma.post.update({
+//       where: {
+//         id: postId,
+//       },
+//       data: {
+//         likes: updatedLikes,
+//       },
+//     });
+
+//     // Optionally, revalidate any paths or cache as needed
+//     return revalidatePath("/");
+//   } catch (error) {
+//     console.error("Error updating likes:", error);
+//   }
+// }
+
+export async function likesCount(formData: FormData) {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+
+  if (!user) {
+    return redirect("/api/auth/login");
+  }
+
+  try {
+    const postId = formData.get("postId") as string;
+    const isLikedStr = formData.get("isLiked");
+
+    if (!postId || typeof isLikedStr !== "string") {
+      console.log("Invalid data received");
+      return;
+    }
+
+    const isLiked = isLikedStr === "true";
+
+    // Fetch the current post data
+    const post = await prisma.post.findUnique({
+      where: {
+        id: postId,
+      },
+    });
+
+    if (!post) {
+      console.log("Post not found");
+      return;
+    }
+
+    // Toggle like: increment if not liked, decrement if liked
+
+    // main --- const updatedLikes = isLiked ? post.likes - 1 : post.likes + 1;
+
+    // Update the post with the new likes count
+    await prisma.post.update({
+      where: {
+        id: postId,
+      },
+      data: {
+        // main --- likes: updatedLikes,
+      },
+    });
+
+    // Revalidate the path or update any relevant caches
+    return revalidatePath("/");
+  } catch (error) {
+    console.error("Error updating likes:", error);
+  }
+}
+
+// export async function postLikes(formData: FormData, boolLike: boolean, id: string, userName: string, title: string) {
+//   const { getUser } = getKindeServerSession();
+//   const user = await getUser();
+
+//   if (!user) {
+//     return redirect("/api/auth/login");
+//   }
+
+//   try {
+//     const userId = user.id as string;
+//     const postId = formData.get("postId") as string;
+//     const isLikedStr = boolLike;
+
+//     console.log("user id = " + user.id);
+//     console.log("userName = " + userName);
+//     console.log("title = " + title);
+//     console.log("boolean = " + boolLike);
+
+//     const like = await prisma.like.findFirst({
+//       where: {
+//         userId: user.id,
+//         postId: id,
+//       },
+//     });
+
+//     if (like) {
+//       if (boolLike) {
+//         await prisma.like.update({
+//           where: {
+//             id: like.id,
+//           },
+//           data: {
+//             liked: false,
+//           },
+//         });
+//         return revalidatePath("/");
+//       } else {
+//         await prisma.like.update({
+//           where: {
+//             id: like.id,
+//           },
+//           data: {
+//             liked: true,
+//           },
+//         });
+//         return revalidatePath("/");
+//       }
+//       return revalidatePath("/");
+//     } else {
+//       await prisma.like.create({
+//         data: {
+//           userId: user.id,
+//           postId: id,
+//           liked: true,
+//         },
+//       });
+//       return revalidatePath("/");
+//     }
+
+//     return revalidatePath("/");
+//   } catch (error) {
+//     console.log(error);
+//   }
+// }
+
+export async function postLikes(
+  formData: FormData,
+  boolLike: boolean,
+  id: string,
+  userName: string,
+  title: string
+) {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+
+  if (!user) {
+    return redirect("/api/auth/login");
+  }
+
+  try {
+    const userId = user.id as string;
+    const postId = formData.get("postId") as string;
+
+    console.log("user id = " + user.id);
+    console.log("userName = " + userName);
+    console.log("title = " + title);
+    console.log("boolean = " + boolLike);
+
+    const like = await prisma.like.findFirst({
+      where: {
+        userId: user.id,
+        postId: id,
+      },
+    });
+
+    if (like) {
+      // Toggle like status
+      await prisma.like.update({
+        where: {
+          id: like.id,
+        },
+        data: {
+          liked: !like.liked, // Toggle based on current status
+        },
+      });
+    } else {
+      // Create a new like
+      await prisma.like.create({
+        data: {
+          userId: user.id,
+          postId: id,
+          liked: true,
+        },
+      });
+    }
+
+    return revalidatePath("/"); // Single call to revalidatePath
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+
+export async function followers(communityId: string, isFollowing: boolean) {
+  
 }

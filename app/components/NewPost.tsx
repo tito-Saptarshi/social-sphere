@@ -91,7 +91,7 @@ export function NewPost({ userId, userName }: Props) {
               <CardTitle>Create a new post</CardTitle>
             </CardHeader>
             <CardContent>
-              <form className="grid gap-4"onSubmit={handleSubmit}>
+              <form className="grid gap-4" onSubmit={handleSubmit}>
                
                 <div className="grid gap-2">
                   <Label htmlFor="title">Title</Label>
