@@ -13,6 +13,7 @@ import {
   HeartIcon,
   ImageIcon,
   MessageCircleIcon,
+  MoveRight,
   PlayCircleIcon,
   ShareIcon,
   ThumbsDownIcon,
@@ -183,9 +184,9 @@ export function PostCard({
                 onClick={handleToggleMedia}
               >
                 {isVideoVisible ? (
-                  <ImageIcon className="w-5 h-5" />
+                  <MoveRight className="w-5 h-5 bg-slate-500 rounded-full p-1" />
                 ) : (
-                  <PlayCircleIcon className="w-5 h-5" />
+                  <MoveRight className="w-5 h-5 bg-slate-500 rounded-full p-1" />
                 )}
               </button>
             )}

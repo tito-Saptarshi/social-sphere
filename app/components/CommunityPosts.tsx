@@ -16,8 +16,8 @@ import { Edit, Settings, SettingsIcon, UploadIcon } from "lucide-react";
 import Link from "next/link";
 import { CommunityDescription } from "./CommunityDescription";
 import { Separator } from "@/components/ui/separator";
-
-
+import { FollowCommunity } from "./FollowCommunity";
+import { FollowCommunityMobile } from "./FollowCommunityMobile";
 
 interface iAppProps {
   communityId: string | undefined | null | "";
@@ -27,6 +27,9 @@ interface iAppProps {
   description: string | undefined | null | "";
   createdAt: Date | undefined;
   imageUrl: string | null | undefined;
+  totalFollowers: number;
+  isFollowing: boolean;
+  oldName: string;
 }
 
 export function CommunityPosts({
@@ -36,21 +39,26 @@ export function CommunityPosts({
   description,
   createdAt,
   currUserId,
-  imageUrl
+  imageUrl,
+  totalFollowers,
+  isFollowing,
+  oldName,
 }: iAppProps) {
   return (
-    
     <div className="max-w-[1000px] mx-auto flex gap-x-10 mt-4 mb-10 ">
       <div className="w-full lg:w-[65%] flex flex-col gap-y-5">
         <div className="flex justify-between px-4">
           <h1 className="text-xl px-2">{name}</h1>
-          <Button className="text-sm font-bold py-2 px-4 rounded-full bg-blue-500 hover:bg-blue-700 text-white lg:hidden">
-            + Follow
-          </Button>
-          
-        </div>
-        <Separator className="mx-2"/>  
 
+          <FollowCommunity
+            userId={currUserId}
+            communityId={communityId}
+            isFollowing={isFollowing}
+            totalFollowers={totalFollowers}
+            oldName={oldName}
+          />
+        </div>
+        <Separator className="mx-2" />
       </div>
 
       {/*community side bar */}
@@ -58,9 +66,13 @@ export function CommunityPosts({
         <Card className="min-h-96">
           <div className="bg-muted p-4 font-semibold flex justify-between gap-x-5">
             <div className="flex items-center">{name}</div>
-            <Button className="text-sm font-bold py-2 px-4 rounded-full bg-blue-500 hover:bg-blue-700 text-white">
-              + Follow
-            </Button>
+            <FollowCommunityMobile
+              userId={currUserId}
+              communityId={communityId}
+              isFollowing={isFollowing}
+              totalFollowers={totalFollowers}
+              oldName={oldName}
+            />
           </div>
 
           <div className="p-4">
@@ -85,7 +97,7 @@ export function CommunityPosts({
               )} */}
               <Avatar className="my-8 h-56 w-56">
                 <AvatarImage
-                  src={imageUrl ??  `https://avatar.vercel.sh/${name}`}
+                  src={imageUrl ?? `https://avatar.vercel.sh/${name}`}
                   alt="@shadcn"
                 />
                 <AvatarFallback>JD</AvatarFallback>
@@ -107,7 +119,11 @@ export function CommunityPosts({
                 creator={false}
               />
             )} */}
-            <div className="flex flex-col py-5">
+            <p className="font-extrabold ">
+              <span className="text-muted-foreground">Followers: </span>{" "}
+              {totalFollowers}
+            </p>
+            <div className="flex flex-col py-5 gap-y-3">
               <h1 className="text-muted-foreground">Community : {name}</h1>
               <Separator className="my-1" />
               <p className="mb-2">{description}</p>
@@ -130,7 +146,7 @@ export function CommunityPosts({
                         communityId={communityId}
                         name={name}
                         description={description}
-                       imageUrl={imageUrl}
+                        imageUrl={imageUrl}
                         creator={true}
                       />
                     </DialogHeader>
@@ -144,19 +160,17 @@ export function CommunityPosts({
               )}
             </div>
             <div className="flex flex-row justify-end ">
-            {userId === currUserId ? (
-              <Link
-                href={`/community/${communityId}/settings`}
-                className="flex items-center"
-              >
-                <p className="mr-1">settings</p>
-                <SettingsIcon className="h-4 w-4" />
-              </Link>
-            ):(
-              <>
-              </>
-            ) }
-              
+              {userId === currUserId ? (
+                <Link
+                  href={`/community/${communityId}/settings`}
+                  className="flex items-center"
+                >
+                  <p className="mr-1">settings</p>
+                  <SettingsIcon className="h-4 w-4" />
+                </Link>
+              ) : (
+                <></>
+              )}
             </div>
           </div>
         </Card>

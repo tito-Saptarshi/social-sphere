@@ -6,7 +6,6 @@ import { MenuIcon, PlusCircleIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { FloatingActionButton } from "./components/FloatingActionButton";
 import prisma from "./lib/db";
-import { tree } from "next/dist/build/templates/app-page";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 
 async function getData() {
@@ -86,7 +85,6 @@ export default async function Home() {
             <p>Loading...</p>
           ) : (
             data.map((post) => {
-              let isLiked2 = post.Like.some(like => like.liked);
               const isLiked = post.Like.some(like => like.userId === user?.id && like.liked);
               return (
               <PostCard

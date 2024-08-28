@@ -1,3 +1,4 @@
+
 import { CommunityPosts } from "@/app/components/CommunityPosts";
 import prisma from "@/app/lib/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
@@ -14,6 +15,13 @@ async function getData(name: string) {
       createdAt: true,
       userId: true,
       imageUrl: true,
+      Followers : {
+        select: {
+          id: true,
+          follow: true,
+          userId: true, 
+        },
+      }
     },
   });
   return data;
@@ -36,6 +44,7 @@ export default async function Community({
   const { getUser } = getKindeServerSession();
   const user = await getUser();
 
+  const isLiked = data?.Followers.some(follow => follow.userId === user?.id && follow.follow);
   return (
     <div>
       <CommunityPosts
@@ -46,6 +55,13 @@ export default async function Community({
         createdAt={data?.createdAt}
         currUserId={user?.id}
         imageUrl={data?.imageUrl}
+        totalFollowers={data?.Followers.reduce((acc, followers) => {
+          if (followers.follow === true) return acc + 1;
+          if (followers.follow === false) return acc;
+          return acc;
+        }, 0) ?? 0}
+        isFollowing={isLiked ?? false}
+        oldName={params.id ?? ""}
       />
     </div>
   );

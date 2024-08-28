@@ -5,6 +5,7 @@ import { DigitalClock } from "./DigitalClock";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import prisma from "../lib/db";
+import Link from "next/link";
 
 async function getData(userId: string) {
   const data = await prisma.user.findUnique({
@@ -20,8 +21,6 @@ async function getData(userId: string) {
 
   return data;
 }
-
-
 
 const CreateOptions = () => (
   <div className="flex justify-center space-x-4">
@@ -61,7 +60,12 @@ export async function RightSidebar() {
               <AvatarFallback>UN</AvatarFallback>
             </Avatar>
             <h2 className="text-xl font-bold">{data?.userName}</h2>
-            <p className="flex text-sm text-muted-foreground hover:cursor-pointer items-center justify-end"><User className="h-4 w-4 mx-1"/>{data?.userName}</p>
+            <Link href={`profile/${user?.id}/user`}>
+            <p className="flex text-sm text-muted-foreground hover:cursor-pointer items-center justify-end">
+              <User className="h-4 w-4 mx-1" />
+              {data?.userName}
+            </p>
+            </Link>
             <p className="text-sm text-center">{data?.bio ?? ""}</p>
           </div>
           <CreateOptions />

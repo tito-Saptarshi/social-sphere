@@ -506,7 +506,45 @@ export async function postLikes(
   }
 }
 
+export async function followCommunity(communityId: string,oldName: string) {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
 
-export async function followers(communityId: string, isFollowing: boolean) {
-  
+  if (!user) {
+    return redirect("/api/auth/login");
+  }
+
+  try {
+    const member = await prisma.communityFollower.findFirst({
+      where: {
+        userId: user.id,
+        communityId: communityId,
+      },
+    });
+
+    if (member) {
+      // Toggle like status
+      await prisma.communityFollower.update({
+        where: {
+          id: member.id,
+        },
+        data: {
+          follow: !member.follow, // Toggle based on current status
+        },
+      });
+    } else {
+      // Create a new like
+      await prisma.communityFollower.create({
+        data: {
+          userId: user.id,
+          communityId: communityId,
+          follow: true,
+        },
+      });
+    }
+    return revalidatePath("/");
+    // return revalidatePath(`/community/${oldName}`);
+  } catch (error) {
+    console.log(error);
+  }
 }
