@@ -1,9 +1,29 @@
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Heart, MessageCircle, UserPlus, Video } from "lucide-react"
+ 
+import { Separator } from "@/components/ui/separator";
+import prisma from "@/app/lib/db";
+import { ProfileTop } from "@/app/components/ProfileTop";
+import { ProfileBottom } from "@/app/components/ProfileBottom";
 
-export default function MyProfile({ params }: { params: { id: string } }) {
+async function getData(userId: string) {
+  const data = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      userName: true,
+      bio: true,
+      imageUrl: true,
+    },
+  });
 
+  return data;
+}
+
+export default async function MyProfile({
+  params,
+}: {
+  params: { id: string };
+}) {
   const posts = [
     {
       type: "image",
@@ -49,56 +69,37 @@ export default function MyProfile({ params }: { params: { id: string } }) {
     },
   ];
 
+  const data = await getData(params.id);
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col md:flex-row items-center md:items-start mb-8">
-        <Avatar className="w-24 h-24 md:w-40 md:h-40 mb-4 md:mb-0 md:mr-8">
-          <AvatarImage alt="User's avatar" src="/placeholder.svg?height=160&width=160" />
-          <AvatarFallback>JD</AvatarFallback>
-        </Avatar>
-        <div className="text-center md:text-left">
-          <h1 className="text-2xl font-bold mb-2">johndoe</h1>
-          <p className="text-gray-600 mb-4 max-w-md">
-            Photography enthusiast | Travel lover | Food connoisseur
-            Sharing my adventures one post at a time! 📸✈️🍔
-          </p>
-          <div className="flex justify-center md:justify-start space-x-4 mb-4">
-            <Button>
-              <UserPlus className="mr-2 h-4 w-4" /> Follow
-            </Button>
-            <Button variant="outline">
-              <MessageCircle className="mr-2 h-4 w-4" /> Message
-            </Button>
-          </div>
-          <div className="flex justify-center md:justify-start space-x-8">
-            <div>
-              <span className="font-bold">42</span> posts
-            </div>
-            <div>
-              <span className="font-bold">1.5k</span> followers
-            </div>
-            <div>
-              <span className="font-bold">300</span> following
-            </div>
-          </div>
-        </div>
-      </div>
+      <ProfileTop
+        id={params.id}
+        userName={data?.userName}
+        bio={data?.bio}
+        profilePhoto={data?.imageUrl}
+      />
+      
+      <Separator className="mt-3 mb-5 p-0.5 rounded-full" />
+
+      <ProfileBottom userId={params.id} />
+{/* 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {posts.map((post, index) => (
           <div key={index} className="relative aspect-square group">
-            {post.type === 'image' && (
+            {post.type === "image" && (
               <img
                 src={post.content}
                 alt={post.caption}
                 className="w-full h-full object-cover rounded-lg"
               />
             )}
-            {post.type === 'video' && (
+            {post.type === "video" && (
               <div className="w-full h-full bg-gray-200 flex items-center justify-center rounded-lg">
                 <Video className="w-12 h-12 text-gray-400" />
               </div>
             )}
-            {post.type === 'text' && (
+            {post.type === "text" && (
               <div className="w-full h-full bg-gray-100 flex items-center justify-center p-4 rounded-lg">
                 <p className="text-center font-medium">{post.content}</p>
               </div>
@@ -118,10 +119,9 @@ export default function MyProfile({ params }: { params: { id: string } }) {
                 </div>
               </div>
             </div>
-          </div>
+          </div>  
         ))}
-      </div>
+      </div> */}
     </div>
-  )
-
+  );
 }

@@ -47,7 +47,7 @@ export function PostCard({
   const [expanded, setExpanded] = useState(false);
   const [liked, setLiked] = useState(false);
   const [disliked, setDisliked] = useState(false);
-  const [isVideoVisible, setIsVideoVisible] = useState(false);
+  const [isVideoVisible, setIsVideoVisible] = useState(!!videoUrl); // Initialize based on videoUrl presence
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [newLikes, setNewLikes] = useState(totalLikes);
   const [boolLikes, setBoolLikes] = useState(likeType);
@@ -65,24 +65,6 @@ export function PostCard({
       console.error("Failed to like the post:", error);
     }
   };
-
-  // const likePost = async (event: React.FormEvent<HTMLFormElement>) => {
-  //   event.preventDefault();
-  //   const formData = new FormData();
-
-  //   formData.append("postId", id);
-  //   formData.append("userName", id);
-  //   formData.append("postTitle", id);
-  //   if(boolLikes) {
-  //     await postLikes(formData, false, id, userName || "", title);
-  //     setBoolLikes(false);
-  //   } else {
-  //     await postLikes(formData, true, id, userName || "", title);
-  //     setBoolLikes(true);
-  //   }
-  // }
-
-  console.log("postCard boolean check " + likeType);
 
   const toggleLike = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault(); // Prevent the form from reloading the page
@@ -114,7 +96,9 @@ export function PostCard({
   };
 
   const handleToggleMedia = () => {
-    setIsVideoVisible(!isVideoVisible);
+    if (videoUrl && imageUrl) {
+      setIsVideoVisible(!isVideoVisible);
+    }
   };
 
   useEffect(() => {
@@ -152,8 +136,12 @@ export function PostCard({
         </Avatar>
         <div>
           <h3 className="font-bold">{userName}</h3>
-          <p className="text-sm text-muted-foreground">{boolLikes ? "true" : "false"}</p>
-          <p className="text-sm text-muted-foreground">{likeType ? "true fetch" : "false fetch"}</p>
+          <p className="text-sm text-muted-foreground">
+            {boolLikes ? "true" : "false"}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {likeType ? "true fetch" : "false fetch"}
+          </p>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -213,7 +201,7 @@ export function PostCard({
             <Button variant="ghost" size="sm" type="submit">
               <HeartIcon
                 className={`w-5 h-5 mr-1 ${
-                  boolLikes  ? "text-red-500 fill-red-500" : ""
+                  boolLikes ? "text-red-500 fill-red-500" : ""
                 }`}
               />
               {newLikes}
