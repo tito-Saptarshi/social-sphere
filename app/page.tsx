@@ -9,7 +9,7 @@ import prisma from "./lib/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 
 async function getData() {
-  const [count ,data ] = await prisma.$transaction([
+  const [count, data] = await prisma.$transaction([
     prisma.post.count(),
     prisma.post.findMany({
       select: {
@@ -21,6 +21,7 @@ async function getData() {
         createdAt: true,
         User: {
           select: {
+            id: true,
             userName: true,
             imageUrl: true,
           },
@@ -29,7 +30,7 @@ async function getData() {
           select: {
             id: true,
             liked: true,
-            userId: true, 
+            userId: true,
           },
         },
       },
@@ -47,11 +48,12 @@ async function getBoolean(postId: string, userId: string) {
     where: {
       postId: postId,
       userId: userId,
-    }, select : {
+    },
+    select: {
       liked: true,
       id: true,
-    }
-  })
+    },
+  });
 
   return like;
 }
@@ -85,25 +87,29 @@ export default async function Home() {
             <p>Loading...</p>
           ) : (
             data.map((post) => {
-              const isLiked = post.Like.some(like => like.userId === user?.id && like.liked);
+              const isLiked = post.Like.some(
+                (like) => like.userId === user?.id && like.liked
+              );
               return (
-              <PostCard
-                key={post.id}
-                id={post.id}
-                userName={post.User.userName}
-                profilePic={post.User.imageUrl}
-                title={post.title}
-                description={post.description}
-                imageUrl={post.imageUrl}
-                videoUrl={post.videoUrl}
-                likeType={isLiked}
-                totalLikes={post.Like.reduce((acc, vote) => {
-                  if (vote.liked) return acc + 1;
-                  
-                  return acc;
-                }, 0)}
-              />)
-})
+                <PostCard
+                  key={post.id}
+                  userId={post.User.id}
+                  id={post.id}
+                  userName={post.User.userName}
+                  profilePic={post.User.imageUrl}
+                  title={post.title}
+                  description={post.description}
+                  imageUrl={post.imageUrl}
+                  videoUrl={post.videoUrl}
+                  likeType={isLiked}
+                  totalLikes={post.Like.reduce((acc, vote) => {
+                    if (vote.liked) return acc + 1;
+
+                    return acc;
+                  }, 0)}
+                />
+              );
+            })
           )}
         </div>
         <div className="hidden md:block">

@@ -506,7 +506,7 @@ export async function postLikes(
   }
 }
 
-export async function followCommunity(communityId: string,oldName: string) {
+export async function followCommunity(communityId: string, oldName: string) {
   const { getUser } = getKindeServerSession();
   const user = await getUser();
 
@@ -547,4 +547,26 @@ export async function followCommunity(communityId: string,oldName: string) {
   } catch (error) {
     console.log(error);
   }
+}
+
+// Function to follow a user
+export async function followUser(followerId: string, followingId: string) {
+  await prisma.userFollower.create({
+    data: {
+      followerId,
+      followingId,
+    },
+  });
+  revalidatePath("/");
+}
+
+// Function to unfollow a user
+export async function unfollowUser(followerId: string, followingId: string) {
+  await prisma.userFollower.deleteMany({
+    where: {
+      followerId,
+      followingId,
+    },
+  });
+  revalidatePath("/");
 }

@@ -20,9 +20,11 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { likesCount, postLikes } from "../actions";
+import Link from "next/link";
 
 interface Props {
   id: string;
+  userId: string | undefined;
   userName: string | null;
   profilePic: string | null;
   title: string;
@@ -35,6 +37,7 @@ interface Props {
 
 export function PostCard({
   id,
+  userId,
   userName,
   title,
   description,
@@ -135,7 +138,9 @@ export function PostCard({
           <AvatarFallback>{userName}</AvatarFallback>
         </Avatar>
         <div>
-          <h3 className="font-bold">{userName}</h3>
+          <Link href={`/profile/${userId}/user`}>
+            <h3 className="font-bold">{userName}</h3>
+          </Link>
           <p className="text-sm text-muted-foreground">
             {boolLikes ? "true" : "false"}
           </p>

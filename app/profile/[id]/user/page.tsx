@@ -3,6 +3,7 @@ import { Separator } from "@/components/ui/separator";
 import prisma from "@/app/lib/db";
 import { ProfileTop } from "@/app/components/ProfileTop";
 import { ProfileBottom } from "@/app/components/ProfileBottom";
+import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 
 async function getData(userId: string) {
   const data = await prisma.user.findUnique({
@@ -69,12 +70,15 @@ export default async function MyProfile({
     },
   ];
 
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
   const data = await getData(params.id);
 
   return (
     <div className="container mx-auto px-4 py-8">
       <ProfileTop
         id={params.id}
+        currUserId={user?.id}
         userName={data?.userName}
         bio={data?.bio}
         profilePhoto={data?.imageUrl}

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Heart, Loader2 } from "lucide-react";
+import { Heart, Loader2, UserPlus } from "lucide-react";
 import { useFormStatus } from "react-dom";
 
 export function SubmitButton({ text }: { text: string }) {
@@ -57,6 +57,23 @@ export function FollowButton(isFollowing: boolean) {
             </Button>
           )}
         </>
+      )}
+    </>
+  );
+}
+
+export function FollowUserButton({ isFollowing }: {isFollowing : boolean}) {
+
+  return (
+    <>
+      {isFollowing ? (
+        <Button variant="outline" size="sm" >
+          Unfollow
+        </Button>
+      ) : (
+        <Button>
+          <UserPlus className="mr-2 h-4 w-4" /> Follow
+        </Button>
       )}
     </>
   );
