@@ -2,13 +2,10 @@
 
 import { Textarea } from "@/components/ui/textarea";
 import { SaveButton, SubmitButton } from "./SubmitButtons";
-import { Input } from "@/components/ui/input";
 import { useFormState } from "react-dom";
 import { updateCommunity } from "../actions";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect } from "react";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
 interface iAppProps {
   communityId: string | null | undefined | "";

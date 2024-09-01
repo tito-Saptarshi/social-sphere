@@ -48,8 +48,6 @@ export function PostCard({
   likeType,
 }: Props) {
   const [expanded, setExpanded] = useState(false);
-  const [liked, setLiked] = useState(false);
-  const [disliked, setDisliked] = useState(false);
   const [isVideoVisible, setIsVideoVisible] = useState(!!videoUrl); // Initialize based on videoUrl presence
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [newLikes, setNewLikes] = useState(totalLikes);
@@ -69,34 +67,6 @@ export function PostCard({
     }
   };
 
-  const toggleLike = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); // Prevent the form from reloading the page
-
-    const formData = new FormData();
-    formData.append("postId", id);
-    formData.append("isLiked", liked.toString());
-
-    // Update local state for immediate feedback
-    setLiked(!liked);
-    setNewLikes((prevLikes) => (liked ? prevLikes - 1 : prevLikes + 1));
-
-    // If disliked, reset dislike
-    if (disliked) {
-      setDisliked(false);
-      setNewLikes((prevLikes) => prevLikes + 1);
-    }
-
-    // Call server action to update likes in the database
-    await likesCount(formData);
-  };
-
-  const toggleDislike = () => {
-    setDisliked(!disliked);
-    if (liked) {
-      setLiked(false);
-      setNewLikes((prevLikes) => prevLikes - 1);
-    }
-  };
 
   const handleToggleMedia = () => {
     if (videoUrl && imageUrl) {
@@ -129,75 +99,77 @@ export function PostCard({
 
   return (
     <Card className="mb-4 lg:mr-5 mx-auto w-full lg:w-4/5">
-      <CardHeader className="flex flex-row items-center gap-4">
-        <Avatar>
-          <AvatarImage
-            src={profilePic ?? "/placeholder.svg"}
-            alt="profile pic"
-          />
-          <AvatarFallback>{userName}</AvatarFallback>
-        </Avatar>
-        <div>
-          <Link href={`/profile/${userId}/user`}>
+      <Link href={`/profile/${userId}/user`}>
+        <CardHeader className="flex flex-row items-center gap-4">
+          <Avatar>
+            <AvatarImage
+              src={profilePic ?? "/placeholder.svg"}
+              alt="profile pic"
+            />
+            <AvatarFallback>{userName}</AvatarFallback>
+          </Avatar>
+          <div>
             <h3 className="font-bold">{userName}</h3>
-          </Link>
-          <p className="text-sm text-muted-foreground">
-            {boolLikes ? "true" : "false"}
-          </p>
-          <p className="text-sm text-muted-foreground">
-            {likeType ? "true fetch" : "false fetch"}
-          </p>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <h4 className="font-bold text-lg">{title}</h4>
+            <p className="text-sm text-muted-foreground">
+              {boolLikes ? "true" : "false"}
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {likeType ? "true fetch" : "false fetch"}
+            </p>
+          </div>
+        </CardHeader>
+      </Link>
+      <Link href={`/post/${id}`}>
+        <CardContent className="space-y-4">
+          <h4 className="font-bold text-lg">{title}</h4>
 
-        {(videoUrl || imageUrl) && (
-          <div className="relative w-full h-[300px] lg:h-[400px] bg-black overflow-hidden">
-            {videoUrl && isVideoVisible ? (
-              <video
-                ref={videoRef}
-                className="absolute inset-0 w-full h-full object-contain"
-                controls
-                src={`https://jgpzentnejvbbjcrtjnu.supabase.co/storage/v1/object/public/images/${videoUrl}`}
-                onError={(e) => console.error("Error playing video:", e)}
-              />
-            ) : imageUrl ? (
-              <Image
-                src={imageUrl}
-                alt={title}
-                className="absolute inset-0 w-full h-full object-contain"
-                layout="fill"
-              />
-            ) : null}
+          {(videoUrl || imageUrl) && (
+            <div className="relative w-full h-[300px] lg:h-[400px] bg-black overflow-hidden">
+              {videoUrl && isVideoVisible ? (
+                <video
+                  ref={videoRef}
+                  className="absolute inset-0 w-full h-full object-contain"
+                  controls
+                  src={`https://jgpzentnejvbbjcrtjnu.supabase.co/storage/v1/object/public/images/${videoUrl}`}
+                  onError={(e) => console.error("Error playing video:", e)}
+                />
+              ) : imageUrl ? (
+                <Image
+                  src={imageUrl}
+                  alt={title}
+                  className="absolute inset-0 w-full h-full object-contain"
+                  layout="fill"
+                />
+              ) : null}
 
-            {imageUrl && videoUrl && (
+              {imageUrl && videoUrl && (
+                <button
+                  className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-200"
+                  onClick={handleToggleMedia}
+                >
+                  {isVideoVisible ? (
+                    <MoveRight className="w-5 h-5 bg-slate-500 rounded-full p-1" />
+                  ) : (
+                    <MoveRight className="w-5 h-5 bg-slate-500 rounded-full p-1" />
+                  )}
+                </button>
+              )}
+            </div>
+          )}
+
+          <p>
+            {expanded ? description : `${description?.slice(0, 100)}...`}
+            {description && description.length > 100 && (
               <button
-                className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-200"
-                onClick={handleToggleMedia}
+                onClick={() => setExpanded(!expanded)}
+                className="text-primary font-semibold ml-2"
               >
-                {isVideoVisible ? (
-                  <MoveRight className="w-5 h-5 bg-slate-500 rounded-full p-1" />
-                ) : (
-                  <MoveRight className="w-5 h-5 bg-slate-500 rounded-full p-1" />
-                )}
+                {expanded ? "Show less" : "Show more"}
               </button>
             )}
-          </div>
-        )}
-
-        <p>
-          {expanded ? description : `${description?.slice(0, 100)}...`}
-          {description && description.length > 100 && (
-            <button
-              onClick={() => setExpanded(!expanded)}
-              className="text-primary font-semibold ml-2"
-            >
-              {expanded ? "Show less" : "Show more"}
-            </button>
-          )}
-        </p>
-      </CardContent>
+          </p>
+        </CardContent>
+      </Link>
       <CardFooter className="flex justify-between">
         <div className="flex space-x-2">
           <form onSubmit={likePost}>
@@ -212,13 +184,7 @@ export function PostCard({
               {newLikes}
             </Button>
           </form>
-          <Button variant="ghost" size="sm" onClick={toggleDislike}>
-            <ThumbsDownIcon
-              className={`w-5 h-5 mr-1 ${
-                disliked ? "text-blue-500 fill-blue-500" : ""
-              }`}
-            />
-          </Button>
+          
         </div>
         <div className="flex space-x-2">
           <Button variant="ghost" size="sm">

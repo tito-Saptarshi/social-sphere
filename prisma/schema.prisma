@@ -38,8 +38,8 @@ model User {
   createdCommunities Community[]
   Following          CommunityFollower[]
 
- FollowingUsers    UserFollower[]   @relation("UserFollows")
-  Followers         UserFollower[]   @relation("UserIsFollowedBy")
+  FollowingUsers UserFollower[] @relation("UserFollows")
+  Followers      UserFollower[] @relation("UserIsFollowedBy")
 
   communityFollowerId String?
 }
@@ -78,10 +78,9 @@ model Post {
   videoUrl    String?
   createdAt   DateTime @default(now())
 
-  Like Like[]
-
-  communityName String?
-  User          User    @relation(fields: [userId], references: [id])
+  communityId String?
+  Like        Like[]
+  User        User    @relation(fields: [userId], references: [id])
 }
 
 model Like {
@@ -99,7 +98,7 @@ model Like {
 model UserFollower {
   id String @id @default(uuid())
 
-  followerId String
+  followerId  String
   followingId String
 
   follower  User @relation("UserFollows", fields: [followerId], references: [id])

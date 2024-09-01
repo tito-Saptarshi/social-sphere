@@ -18,6 +18,43 @@ import { CommunityDescription } from "./CommunityDescription";
 import { Separator } from "@/components/ui/separator";
 import { FollowCommunity } from "./FollowCommunity";
 import { FollowCommunityMobile } from "./FollowCommunityMobile";
+import prisma from "../lib/db";
+import { PostCard } from "./PostCard";
+
+async function getData(communityId: string | null | undefined) {
+  const data = await prisma.post.findMany({
+    where: {
+      communityId: communityId,
+    },
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      imageUrl: true,
+      videoUrl: true,
+      createdAt: true,
+      User: {
+        select: {
+          id: true,
+          userName: true,
+          imageUrl: true,
+        },
+      },
+      Like: {
+        select: {
+          id: true,
+          liked: true,
+          userId: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return data;
+}
 
 interface iAppProps {
   communityId: string | undefined | null | "";
@@ -32,7 +69,7 @@ interface iAppProps {
   oldName: string;
 }
 
-export function CommunityPosts({
+export async function CommunityPosts({
   communityId,
   userId,
   name,
@@ -44,8 +81,11 @@ export function CommunityPosts({
   isFollowing,
   oldName,
 }: iAppProps) {
+  const loading = false;
+  const data = await getData(communityId);
+
   return (
-    <div className="max-w-[1000px] mx-auto flex gap-x-10 mt-4 mb-10 ">
+    <div className="max-w-[1300px] mx-auto flex gap-x-10 mt-4 mb-10 ">
       <div className="w-full lg:w-[65%] flex flex-col gap-y-5">
         <div className="flex justify-between px-4">
           <h1 className="text-xl px-2">{name}</h1>
@@ -58,9 +98,40 @@ export function CommunityPosts({
             oldName={oldName}
           />
         </div>
-        <Separator className="mx-2" />
-      </div>
 
+        <Separator className="mx-2" />
+
+        <div className="md:col-span-2 lg:col-span-3 space-y-4">
+          {loading ? (
+            <p>Loading...</p>
+          ) : (
+            data.map((post) => {
+              const isLiked = post.Like.some(
+                (like) => like.userId === currUserId && like.liked
+              );
+              return (
+                <PostCard
+                  key={post.id}
+                  userId={post.User.id}
+                  id={post.id}
+                  userName={post.User.userName}
+                  profilePic={post.User.imageUrl}
+                  title={post.title}
+                  description={post.description}
+                  imageUrl={post.imageUrl}
+                  videoUrl={post.videoUrl}
+                  likeType={isLiked}
+                  totalLikes={post.Like.reduce((acc, vote) => {
+                    if (vote.liked) return acc + 1;
+
+                    return acc;
+                  }, 0)}
+                />
+              );
+            })
+          )}
+        </div>
+      </div>
       {/*community side bar */}
       <div className="w-[35%] hidden lg:block">
         <Card className="min-h-96">
@@ -124,7 +195,9 @@ export function CommunityPosts({
               {totalFollowers}
             </p>
             <div className="flex flex-col py-5 gap-y-3">
-              <h1 className="text-muted-foreground">Community : {name}</h1>
+              <Link href={`/community/${oldName}/post/create/${communityId}`}>
+                <Button> Create Post</Button>
+              </Link>
               <Separator className="my-1" />
               <p className="mb-2">{description}</p>
               {userId === currUserId ? (

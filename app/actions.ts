@@ -570,3 +570,112 @@ export async function unfollowUser(followerId: string, followingId: string) {
   });
   revalidatePath("/");
 }
+
+export async function createCommunityPost(
+  formData: FormData,
+  communityId: string | null | undefined
+) {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+
+  if (!user) {
+    return redirect("/api/auth/login");
+  }
+
+  try {
+    const userId = user.id as string;
+    const title = formData.get("title") as string;
+    const description = formData.get("description") as string;
+    const imageUrl = formData.get("imageUrl") as string;
+    const videoUrl = formData.get("videoFile") as File | null;
+    let videoData;
+    if (videoUrl) {
+      const { data } = await supabase.storage
+        .from("images")
+        .upload(`${videoUrl.name}-${new Date()}`, videoUrl, {
+          cacheControl: "2592000",
+          contentType: "image/png",
+        });
+
+      videoData = data;
+    } else {
+      console.log("No file uploaded");
+    }
+
+    await prisma.post.create({
+      data: {
+        userId: userId,
+        title: title,
+        description: description,
+        imageUrl: imageUrl ?? undefined,
+        videoUrl: videoData?.path,
+        communityId: communityId,
+      },
+    });
+
+    redirect("/");
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+export async function updatePost(prevState: any, formData: FormData) {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+
+  if (!user) {
+    return redirect("/api/auth/login");
+  }
+  try {
+    const postId = formData.get("postId") as string;
+    const title = formData.get("title") as string;
+    const description = formData.get("description") as string;
+
+    await prisma.post.update({
+      where: {
+        id: postId,
+      },
+      data: {
+        title: title,
+        description: description,
+      },
+    });
+
+    revalidatePath("/");
+    return {
+      status: "green",
+      message: "Succesfully updated !",
+    };
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2002") {
+        return {
+          message: "Community already exist",
+          status: "error",
+        };
+      }
+    }
+    throw e;
+  }
+}
+
+export async function deletePost(postId: string | undefined) {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+
+  if (!user) {
+    return redirect("/api/auth/login");
+  }
+  try {
+    await prisma.post.delete({
+      where: {
+        id: postId,
+      },
+    });
+
+    return redirect("/");
+  } catch (error) {
+    console.log(error);
+  }
+}
