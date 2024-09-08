@@ -3,6 +3,7 @@ import { NewPost } from "@/app/components/NewPost";
 import prisma from "@/app/lib/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 
+import { unstable_noStore as noStore } from "next/cache";
 async function getData(userId: string | undefined) {
   const data = await prisma.user.findUnique({
     where: {
@@ -18,6 +19,7 @@ async function getData(userId: string | undefined) {
 }
 
 export default async function CreateCommunityPostNew({params} : {params: {_id: string}}) {
+  noStore();
   const { getUser } = getKindeServerSession();
   const user = await getUser();
   const data = await getData(user?.id);

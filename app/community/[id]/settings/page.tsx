@@ -3,7 +3,10 @@ import { CommunityUpdate } from "@/app/components/CommunityUpdate";
 
 import prisma from "@/app/lib/db";
 
+import { unstable_noStore as noStore } from "next/cache";
+
 async function getData(communityId: string) {
+  noStore();
   const data = await prisma.community.findUnique({
     where: {
       id: communityId,

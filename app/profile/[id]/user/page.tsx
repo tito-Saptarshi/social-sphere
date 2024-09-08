@@ -4,7 +4,7 @@ import prisma from "@/app/lib/db";
 import { ProfileTop } from "@/app/components/ProfileTop";
 import { ProfileBottom } from "@/app/components/ProfileBottom";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
-
+import { unstable_noStore as noStore } from "next/cache";
 async function getData(userId: string) {
   const data = await prisma.user.findUnique({
     where: {
@@ -73,7 +73,7 @@ export default async function MyProfile({
   const { getUser } = getKindeServerSession();
   const user = await getUser();
   const data = await getData(params.id);
-
+  noStore();
   return (
     <div className="container mx-auto px-4 py-8">
       <ProfileTop

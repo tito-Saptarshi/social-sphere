@@ -8,9 +8,10 @@ import { FloatingActionButton } from "./components/FloatingActionButton";
 import prisma from "./lib/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 
-import { getDataActions } from "./actions";
+import { unstable_noStore as noStore } from "next/cache";
 
 async function getData() {
+  noStore();
   const [count, data] = await prisma.$transaction([
     prisma.post.count(),
     prisma.post.findMany({

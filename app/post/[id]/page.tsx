@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { redirect } from "next/navigation";
 
+import { unstable_noStore as noStore } from "next/cache";
+
 async function getData(postId: string) {
   const data = await prisma.post.findUnique({
     where: {
@@ -76,6 +78,7 @@ export default async function PostPageSingle({
 }: {
   params: { id: string };
 }) {
+  noStore();
   const { getUser } = getKindeServerSession();
   const user = await getUser();
 

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { ProfileForm } from "../components/ProfileForm";
 import { Separator } from "@/components/ui/separator";
 import prisma from "../lib/db";
+import { unstable_noStore as noStore } from "next/cache";
 
 async function getData(userId: string) {
   const data = await prisma.user.findUnique({
@@ -20,6 +21,7 @@ async function getData(userId: string) {
 }
 
 export default async function ProfilePage() {
+  noStore();
   const { getUser } = getKindeServerSession();
   const user = await getUser();
   if (!user) redirect("/");
