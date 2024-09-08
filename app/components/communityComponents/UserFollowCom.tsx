@@ -13,7 +13,10 @@ import {
 import { UserIcon } from "lucide-react";
 import Link from "next/link";
 
+import { unstable_noStore as noStore } from "next/cache";
+
 async function getData(communityId: string) {
+  noStore();
   const communityData = await prisma.community.findUnique({
     where: {
       id: communityId,

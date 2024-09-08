@@ -22,7 +22,10 @@ import prisma from "../lib/db";
 import { PostCard } from "./PostCard";
 import { CommunityFollowingDialog } from "./communityComponents/UserFollowCom";
 
+import { unstable_noStore as noStore } from "next/cache"
+
 async function getData(communityId: string | null | undefined) {
+  noStore();
   const data = await prisma.post.findMany({
     where: {
       communityId: communityId,

@@ -2,11 +2,13 @@ import Link from "next/link";
 import prisma from "../lib/db";
 import { ProfileBottomPostCard } from "./ProfileBottomPostCard";
 
+import { unstable_noStore as noStore } from "next/cache"
 interface Props {
   userId: string;
 }
 
 async function getData(userId: string) {
+  noStore();
   const data = await prisma.post.findMany({
     where: {
       userId: userId,

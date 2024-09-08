@@ -16,6 +16,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import Link from "next/link";
+import { unstable_noStore as noStore } from "next/cache";
 
 interface Props {
   id: string;
@@ -106,6 +107,7 @@ export async function ProfileTop({
   userName,
   bio,
 }: Props) {
+  noStore();
   const { getUser } = getKindeServerSession();
   const data = await getUser();
   const user = await getData(id);
