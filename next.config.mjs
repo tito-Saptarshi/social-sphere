@@ -28,9 +28,7 @@ const nextConfig = {
         ]
     },
     
-  experimental: {
-    revalidate: true,
-  },
+
 
 };
 
