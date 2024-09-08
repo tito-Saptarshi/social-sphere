@@ -17,6 +17,7 @@ import {
   PlayCircleIcon,
   ShareIcon,
   ThumbsDownIcon,
+  UsersIcon,
 } from "lucide-react";
 import Image from "next/image";
 import { likesCount, postLikes } from "../actions";
@@ -33,6 +34,9 @@ interface Props {
   videoUrl: string | null;
   totalLikes: number;
   likeType: boolean;
+  totalComments: number;
+  comName: string | null;
+  commId: string;
 }
 
 export function PostCard({
@@ -46,6 +50,9 @@ export function PostCard({
   videoUrl,
   totalLikes,
   likeType,
+  totalComments,
+  comName,
+  commId,
 }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [isVideoVisible, setIsVideoVisible] = useState(!!videoUrl); // Initialize based on videoUrl presence
@@ -66,7 +73,6 @@ export function PostCard({
       console.error("Failed to like the post:", error);
     }
   };
-
 
   const handleToggleMedia = () => {
     if (videoUrl && imageUrl) {
@@ -110,11 +116,22 @@ export function PostCard({
           </Avatar>
           <div>
             <h3 className="font-bold">{userName}</h3>
-            <p className="text-sm text-muted-foreground">
+            {/* <p className="text-sm text-muted-foreground">
               {boolLikes ? "true" : "false"}
             </p>
             <p className="text-sm text-muted-foreground">
               {likeType ? "true fetch" : "false fetch"}
+            </p> */}
+
+            <p className="flex text-sm text-muted-foreground items-center">
+              {comName !== "No Community" ? (
+                <>
+                  <UsersIcon className="w-4 h-4 mr-1" />
+                  {comName}
+                </>
+              ) : (
+                <></>
+              )}
             </p>
           </div>
         </CardHeader>
@@ -184,13 +201,14 @@ export function PostCard({
               {newLikes}
             </Button>
           </form>
-          
         </div>
         <div className="flex space-x-2">
-          <Button variant="ghost" size="sm">
-            <MessageCircleIcon className="w-5 h-5 mr-1" />
-            {/* Replace with actual comment count */}0
-          </Button>
+          <Link href={`/post/${id}`}>
+            <Button variant="ghost" size="sm">
+              <MessageCircleIcon className="w-5 h-5 mr-1" />
+              {/* Replace with actual comment count */} {totalComments}
+            </Button>
+          </Link>
           <Button variant="ghost" size="sm">
             <ShareIcon className="w-5 h-5 mr-1" />
             Share

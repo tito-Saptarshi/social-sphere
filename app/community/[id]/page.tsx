@@ -1,6 +1,7 @@
 import { CommunityPosts } from "@/app/components/CommunityPosts";
 import prisma from "@/app/lib/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+import Link from "next/link";
 
 async function getData(name: string) {
   const data = await prisma.community.findUnique({
@@ -49,6 +50,7 @@ export default async function Community({
   );
   return (
     <div>
+      
       <CommunityPosts
         communityId={data?.id}
         userId={data?.userId}

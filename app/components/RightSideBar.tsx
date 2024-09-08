@@ -61,10 +61,10 @@ export async function RightSidebar() {
             </Avatar>
             <h2 className="text-xl font-bold">{data?.userName}</h2>
             <Link href={`profile/${user?.id}/user`}>
-            <p className="flex text-sm text-muted-foreground hover:cursor-pointer items-center justify-end">
-              <User className="h-4 w-4 mx-1" />
-              {data?.userName}
-            </p>
+              <p className="flex text-sm text-muted-foreground hover:cursor-pointer items-center justify-end">
+                <User className="h-4 w-4 mx-1" />
+                update profile
+              </p>
             </Link>
             <p className="text-sm text-center">{data?.bio ?? ""}</p>
           </div>

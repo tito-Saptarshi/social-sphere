@@ -679,3 +679,101 @@ export async function deletePost(postId: string | undefined) {
     console.log(error);
   }
 }
+
+export async function createComment(prevState: any, formData: FormData) {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+
+  if (!user) {
+    return redirect("/api/auth/login");
+  }
+
+  try {
+    const comment = formData.get("comment") as string;
+    const postId = formData.get("postId") as string;
+
+    const data = await prisma.comment.create({
+      data: {
+        text: comment,
+        userId: user.id,
+        postId: postId,
+      },
+    });
+
+    revalidatePath(`/post/${postId}`);
+    return {
+      status: "green",
+      message: "Comment Posted !",
+    };
+  } catch (error) {
+    return {
+      message: "Retry",
+      status: "error",
+    };
+  }
+}
+
+export async function getDataActions(take: number, skip: number) {
+  const data = await prisma.post.findMany({
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      imageUrl: true,
+      videoUrl: true,
+      createdAt: true,
+      communityId: true,
+      User: {
+        select: {
+          id: true,
+          userName: true,
+          imageUrl: true,
+        },
+      },
+      Like: {
+        select: {
+          id: true,
+          liked: true,
+          userId: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: take,
+    skip: skip,
+  });
+
+  return data;
+}
+
+export async function getTotalCommmentAction(postId: string) {
+  const count = await prisma.comment.count({
+    where: {
+      postId: postId,
+    },
+  });
+
+  return count;
+}
+
+export async function getCommunityDetailsAction(communityId: string) {
+  const data = await prisma.community.findUnique({
+    where: {
+      id: communityId,
+    },
+    select: {
+      name: true,
+      id: true,
+    },
+  });
+
+  return data;
+}
+
+export async function getUserAction() {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+  return user;
+}

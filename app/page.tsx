@@ -2,11 +2,13 @@ import { PostCard } from "./components/PostCard";
 import { RightSidebar } from "./components/RightSideBar";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { MenuIcon, PlusCircleIcon } from "lucide-react";
+import { MenuIcon, PlusCircleIcon, UserIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { FloatingActionButton } from "./components/FloatingActionButton";
 import prisma from "./lib/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
+
+import { getDataActions } from "./actions";
 
 async function getData() {
   const [count, data] = await prisma.$transaction([
@@ -19,6 +21,7 @@ async function getData() {
         imageUrl: true,
         videoUrl: true,
         createdAt: true,
+        communityId: true,
         User: {
           select: {
             id: true,
@@ -37,6 +40,7 @@ async function getData() {
       orderBy: {
         createdAt: "desc",
       },
+      
     }),
   ]);
 
@@ -58,6 +62,30 @@ async function getBoolean(postId: string, userId: string) {
   return like;
 }
 
+async function getCommunityDetails(communityId: string) {
+  const data = await prisma.community.findUnique({
+    where: {
+      id: communityId,
+    },
+    select: {
+      name: true,
+      id: true,
+    }
+  });
+
+  return data;
+}
+
+async function getTotalCommment(postId: string ) {
+  const count = await prisma.comment.count({
+    where: {
+      postId: postId,
+    },
+  });
+
+  return count;
+}
+
 export default async function Home() {
   const loading = false;
   const { count, data } = await getData();
@@ -67,12 +95,11 @@ export default async function Home() {
 
   return (
     <div className="container mx-auto p-4 max-w-[1250px]">
-      <h1 className="text-2xl font-bold mb-4 text-center">FunkyMedia</h1>
       <div className="md:hidden mb-4 ">
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon">
-              <MenuIcon className="h-4 w-4" />
+              <UserIcon className="h-4 w-4" />
               <span className="sr-only">Open menu</span>
             </Button>
           </SheetTrigger>
@@ -86,10 +113,12 @@ export default async function Home() {
           {loading ? (
             <p>Loading...</p>
           ) : (
-            data.map((post) => {
+            data.map(async (post) => {
               const isLiked = post.Like.some(
                 (like) => like.userId === user?.id && like.liked
               );
+              const totalComments = await getTotalCommment(post.id);
+              const commDet = await getCommunityDetails(post.communityId ?? "");
               return (
                 <PostCard
                   key={post.id}
@@ -107,11 +136,16 @@ export default async function Home() {
 
                     return acc;
                   }, 0)}
+                  totalComments={totalComments}
+                  comName={commDet?.name ?? "No Community"}
+                  commId={post.communityId ?? post.User.id}
                 />
               );
             })
           )}
+          
         </div>
+       
         <div className="hidden md:block">
           <Card className="sticky top-4">
             <CardContent>

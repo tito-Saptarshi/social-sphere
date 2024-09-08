@@ -33,6 +33,8 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { CommunityDescription } from "../CommunityDescription";
 import { PostUpdate } from "./PostUpdate";
+import { CommentForm } from "../Comments/CommentForm";
+import { RenderComments } from "../Comments/CommentRender";
 
 interface Props {
   id: string;
@@ -46,6 +48,8 @@ interface Props {
   totalLikes: number;
   likeType: boolean;
   currUserId: string | undefined;
+  comments: any;
+  totalComments: number;
 }
 
 const images = [
@@ -66,6 +70,8 @@ export function IndividualPost({
   totalLikes,
   likeType,
   currUserId,
+  comments,
+  totalComments
 }: Props) {
   const [commentText, setCommentText] = useState("");
 
@@ -265,7 +271,7 @@ export function IndividualPost({
             className="flex items-center space-x-1"
           >
             <MessageCircleIcon className="h-5 w-5" />
-            <span>Comment</span>
+            <span>{totalComments} Comments</span>
           </Button>
           <Button
             variant="ghost"
@@ -276,14 +282,25 @@ export function IndividualPost({
             <span>Share</span>
           </Button>
         </div>
-        <div className="w-full">
+        {/* <div className="w-full">
           <Input
             placeholder="Add a comment..."
             value={commentText}
             onChange={(e) => setCommentText(e.target.value)}
           />
-        </div>
-        <div className="w-full space-y-2">
+        </div> */}
+        <CommentForm postId={id} />
+        {comments.map((comment: any) => {
+        return (
+          <RenderComments key={comment.id}
+          userName={comment.User?.userName}
+          comment={comment.text}
+          imageUrl={comment.User?.imageUrl}
+          userId={comment.User?.id}/>
+          
+        )
+      })}
+        {/* <div className="w-full space-y-2">
           <div className="flex items-start space-x-2">
             <Avatar className="w-8 h-8">
               <AvatarImage src="/placeholder-user.jpg" alt="@johndoe" />
@@ -308,7 +325,7 @@ export function IndividualPost({
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
       </CardFooter>
     </Card>
   );

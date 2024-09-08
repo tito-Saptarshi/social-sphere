@@ -1,5 +1,7 @@
+import { RenderComments } from "@/app/components/Comments/CommentRender";
 import { IndividualPost } from "@/app/components/Post/IndivdualPost";
 import prisma from "@/app/lib/db";
+import { Card } from "@/components/ui/card";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { redirect } from "next/navigation";
 
@@ -35,6 +37,40 @@ async function getData(postId: string) {
   return data;
 }
 
+async function getComment(postId: string) {
+  const data = await prisma.comment.findMany({
+    where: {
+      postId: postId,
+    },
+    select: {
+      id: true,
+      text: true,
+      User: {
+        select: {
+          id: true,
+          userName: true,
+          imageUrl: true,
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return data;
+}
+
+async function getTotalCommment(postId: string) {
+  const count = await prisma.comment.count({
+    where: {
+      postId: postId,
+    },
+  });
+
+  return count;
+}
+
 export default async function PostPageSingle({
   params,
 }: {
@@ -45,9 +81,13 @@ export default async function PostPageSingle({
 
   const post = await getData(params.id);
   if (!post) redirect("/");
+
+  const comments = await getComment(params.id);
+  const totalComments = await getTotalCommment(params.id);
   const isLiked = post.Like.some(
     (like) => like.userId === user?.id && like.liked
   );
+
   return (
     <div>
       <IndividualPost
@@ -66,6 +106,8 @@ export default async function PostPageSingle({
           return acc;
         }, 0)}
         currUserId={user?.id}
+        comments={comments}
+        totalComments={totalComments}
       />
     </div>
   );

@@ -22,6 +22,53 @@ import {
 } from "@kinde-oss/kinde-auth-nextjs/server";
 import { UserDropdown } from "./UserDropdown";
 
+function SphereIcon(props: any) {
+  return (
+    <svg
+    {...props}
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="12" r="8" />
+    <path d="M4.2 15.5C5.5 18 8 20 12 20s6.5-2 7.8-4.5" />
+    <path d="M4.2 8.5C5.5 6 8 4 12 4s6.5 2 7.8 4.5" />
+    <path d="M2 12h20" />
+  </svg>
+  );
+}
+import styles from './Navbar.module.css';
+
+function SphereEnergyIcon(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={styles.animateSphere} // Reference the class from CSS Module
+    >
+      <circle cx="12" cy="12" r="8" />
+      <path d="M4.2 15.5C5.5 18 8 20 12 20s6.5-2 7.8-4.5" />
+      <path d="M4.2 8.5C5.5 6 8 4 12 4s6.5 2 7.8 4.5" />
+      <path d="M2 12h20" />
+    </svg>
+  );
+}
+
+
 export async function Navbar() {
   const { getUser } = getKindeServerSession();
   const user = await getUser();
@@ -33,8 +80,8 @@ export async function Navbar() {
           className="flex items-center gap-2 text-lg font-semibold"
           prefetch={false}
         >
-          <FacebookIcon className="h-6 w-6" />
-          <span className="sr-only">Social App</span>
+            <SphereEnergyIcon className="h-6 w-6" />
+            <span className="sr-only">Social-Sphere</span>
         </Link>
 
         <nav className="hidden items-center gap-4 sm:flex">

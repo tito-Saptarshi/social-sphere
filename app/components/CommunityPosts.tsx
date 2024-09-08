@@ -20,6 +20,7 @@ import { FollowCommunity } from "./FollowCommunity";
 import { FollowCommunityMobile } from "./FollowCommunityMobile";
 import prisma from "../lib/db";
 import { PostCard } from "./PostCard";
+import { CommunityFollowingDialog } from "./communityComponents/UserFollowCom";
 
 async function getData(communityId: string | null | undefined) {
   const data = await prisma.post.findMany({
@@ -33,6 +34,7 @@ async function getData(communityId: string | null | undefined) {
       imageUrl: true,
       videoUrl: true,
       createdAt: true,
+      communityId: true,
       User: {
         select: {
           id: true,
@@ -53,7 +55,39 @@ async function getData(communityId: string | null | undefined) {
     },
   });
 
+  const totalPosts = await prisma.post.count({
+    where: {
+      communityId: communityId,
+    },
+  });
+
+  return { data, totalPosts };
+}
+
+
+async function getCommunityDetails(communityId: string) {
+  const data = await prisma.community.findUnique({
+    where: {
+      id: communityId,
+    },
+    select: {
+      name: true,
+      id: true,
+    }
+  });
+
   return data;
+}
+
+
+async function getTotalCommment(postId: string) {
+  const count = await prisma.comment.count({
+    where: {
+      postId: postId,
+    },
+  });
+
+  return count;
 }
 
 interface iAppProps {
@@ -82,21 +116,109 @@ export async function CommunityPosts({
   oldName,
 }: iAppProps) {
   const loading = false;
-  const data = await getData(communityId);
+  const { data, totalPosts } = await getData(communityId);
 
   return (
     <div className="max-w-[1300px] mx-auto flex gap-x-10 mt-4 mb-10 ">
       <div className="w-full lg:w-[65%] flex flex-col gap-y-5">
-        <div className="flex justify-between px-4">
-          <h1 className="text-xl px-2">{name}</h1>
+        <div className="flex justify-between px-4 items-center">
+          
+          <Dialog>
+            <DialogTrigger><span className="text-xl">{name}</span></DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <div className="p-4">
+                  <div className="flex flex-col gap-y-5 items-center justify-center gap-x-3">
+                    <Avatar className="my-8 h-56 w-56">
+                      <AvatarImage
+                        src={imageUrl ?? `https://avatar.vercel.sh/${name}`}
+                        alt="@shadcn"
+                      />
+                      <AvatarFallback>JD</AvatarFallback>
+                    </Avatar>
+                  </div>
 
-          <FollowCommunity
-            userId={currUserId}
-            communityId={communityId}
-            isFollowing={isFollowing}
-            totalFollowers={totalFollowers}
-            oldName={oldName}
-          />
+                  <div className="flex justify-between">
+                    <p className="font-extrabold ">
+                      <span className="text-muted-foreground">Posts: </span>{" "}
+                      {totalPosts}
+                    </p>
+                    <span className="text-muted-foreground">
+                      <CommunityFollowingDialog
+                        communityId={communityId ?? ""}
+                      />
+                    </span>
+                  </div>
+                  <div className="flex flex-col py-5 gap-y-3">
+                    <Link
+                      href={`/community/${oldName}/post/create/${communityId}`}
+                    >
+                      <Button> Create Post</Button>
+                    </Link>
+                    <Separator className="my-1" />
+                    <p className="mb-2">{description}</p>
+                    {userId === currUserId ? (
+                      <Dialog>
+                        <DialogTrigger asChild className="mt-10">
+                          <Button className="py-1 px-1 rounded-full">
+                            {" "}
+                            <Edit className="w-4 h-4 mx-2" /> Edit Description
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Update Description</DialogTitle>
+                            <Separator />
+                            <DialogDescription>
+                              Update Description of Community : {name}
+                            </DialogDescription>
+                            <CommunityDescription
+                              communityId={communityId}
+                              name={name}
+                              description={description}
+                              imageUrl={imageUrl}
+                              creator={true}
+                            />
+                          </DialogHeader>
+                        </DialogContent>
+                      </Dialog>
+                    ) : (
+                      <Button disabled className="py-1 px-1 rounded-full">
+                        {" "}
+                        <Edit className="w-4 h-4 mx-2" /> Edit
+                      </Button>
+                    )}
+                  </div>
+                  <div className="flex flex-row justify-end ">
+                    {userId === currUserId ? (
+                      <Link
+                        href={`/community/${communityId}/settings`}
+                        className="flex items-center"
+                      >
+                        <p className="mr-1">settings</p>
+                        <SettingsIcon className="h-4 w-4" />
+                      </Link>
+                    ) : (
+                      <></>
+                    )}
+                  </div>
+                </div>
+              </DialogHeader>
+            </DialogContent>
+          </Dialog>
+
+          <div className="flex items-center">
+            <span className="mr-2">
+              <CommunityFollowingDialog communityId={communityId ?? ""} />
+            </span>
+            <FollowCommunity
+              userId={currUserId}
+              communityId={communityId}
+              isFollowing={isFollowing}
+              totalFollowers={totalFollowers}
+              oldName={oldName}
+            />
+          </div>
         </div>
 
         <Separator className="mx-2" />
@@ -105,10 +227,12 @@ export async function CommunityPosts({
           {loading ? (
             <p>Loading...</p>
           ) : (
-            data.map((post) => {
+            data.map( async (post) => {
               const isLiked = post.Like.some(
                 (like) => like.userId === currUserId && like.liked
               );
+              const totalComments = await getTotalCommment(post.id);
+              const commDet = await getCommunityDetails(post.communityId ?? "");
               return (
                 <PostCard
                   key={post.id}
@@ -126,6 +250,9 @@ export async function CommunityPosts({
 
                     return acc;
                   }, 0)}
+                  totalComments={totalComments}
+                  comName={commDet?.name ?? ""}
+                  commId={commDet?.id ?? post.User.id}
                 />
               );
             })
@@ -190,10 +317,15 @@ export async function CommunityPosts({
                 creator={false}
               />
             )} */}
-            <p className="font-extrabold ">
-              <span className="text-muted-foreground">Followers: </span>{" "}
-              {totalFollowers}
-            </p>
+            <div className="flex justify-between">
+              <p className="font-extrabold ">
+                <span className="text-muted-foreground">Posts: </span>{" "}
+                {totalPosts}
+              </p>
+              <span className="text-muted-foreground">
+                <CommunityFollowingDialog communityId={communityId ?? ""} />
+              </span>
+            </div>
             <div className="flex flex-col py-5 gap-y-3">
               <Link href={`/community/${oldName}/post/create/${communityId}`}>
                 <Button> Create Post</Button>
