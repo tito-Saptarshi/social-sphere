@@ -92,10 +92,6 @@ async function getTotalCommment(postId: string) {
 }
 
 export default async function Home() {
-  const { count, data } = await getData();
-
-  const { getUser } = getKindeServerSession();
-  const user = await getUser();
 
   return (
     <div className="container mx-auto p-4 max-w-[1250px]">
