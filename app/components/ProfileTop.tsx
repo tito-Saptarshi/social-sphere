@@ -30,6 +30,7 @@ interface Props {
 // following -> props userid
 
 async function getData(userId: string) {
+  noStore();
   const user = await prisma.user.findUnique({
     where: {
       id: userId,
@@ -88,6 +89,7 @@ async function isFollowing(
   followerId: string,
   followingId: string
 ): Promise<boolean> {
+  noStore();
   const followRecord = await prisma.userFollower.findUnique({
     where: {
       followerId_followingId: {
@@ -107,7 +109,7 @@ export async function ProfileTop({
   userName,
   bio,
 }: Props) {
-  noStore();
+
   const { getUser } = getKindeServerSession();
   const data = await getUser();
   const user = await getData(id);

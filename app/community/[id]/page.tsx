@@ -6,6 +6,7 @@ import Link from "next/link";
 import { unstable_noStore as noStore } from "next/cache";
 
 async function getData(name: string) {
+  noStore();
   const data = await prisma.community.findUnique({
     where: {
       name: name,
@@ -35,7 +36,7 @@ export default async function Community({
 }: {
   params: { id: string };
 }) {
-  noStore();
+  
   function replacePercent20(str: string | "" | null | undefined): string {
     if (str === null || str === undefined) {
       return "s";

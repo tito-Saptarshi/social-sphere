@@ -69,6 +69,7 @@ async function getData(communityId: string | null | undefined) {
 
 
 async function getCommunityDetails(communityId: string) {
+  noStore();
   const data = await prisma.community.findUnique({
     where: {
       id: communityId,
@@ -84,6 +85,7 @@ async function getCommunityDetails(communityId: string) {
 
 
 async function getTotalCommment(postId: string) {
+  noStore();
   const count = await prisma.comment.count({
     where: {
       postId: postId,

@@ -8,6 +8,7 @@ import prisma from "../lib/db";
 import Link from "next/link";
 import { unstable_noStore as noStore } from "next/cache";
 async function getData(userId: string) {
+  noStore();
   const data = await prisma.user.findUnique({
     where: {
       id: userId,
@@ -36,7 +37,7 @@ const CreateOptions = () => (
 );
 
 export async function RightSidebar() {
-  noStore();
+
   let loading = false;
   const { getUser } = getKindeServerSession();
   const user = await getUser();

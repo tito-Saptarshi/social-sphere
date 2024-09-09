@@ -48,6 +48,7 @@ interface Props {
 }
 
 export async function CommunityFollowingDialog({ communityId }: Props) {
+
   const followingData = await getData(communityId);
 
   const totalFollowingUsers = followingData.length;

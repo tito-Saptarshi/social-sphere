@@ -43,6 +43,7 @@ async function getData(userId: string) {
 }
 
 async function getTotalCommment(postId: string ) {
+  noStore();
   const count = await prisma.comment.count({
     where: {
       postId: postId,

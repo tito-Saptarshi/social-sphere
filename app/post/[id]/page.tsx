@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import { unstable_noStore as noStore } from "next/cache";
 
 async function getData(postId: string) {
+  noStore();
   const data = await prisma.post.findUnique({
     where: {
       id: postId,
@@ -40,6 +41,7 @@ async function getData(postId: string) {
 }
 
 async function getComment(postId: string) {
+  noStore();
   const data = await prisma.comment.findMany({
     where: {
       postId: postId,
@@ -64,6 +66,7 @@ async function getComment(postId: string) {
 }
 
 async function getTotalCommment(postId: string) {
+  noStore();
   const count = await prisma.comment.count({
     where: {
       postId: postId,
@@ -78,7 +81,7 @@ export default async function PostPageSingle({
 }: {
   params: { id: string };
 }) {
-  noStore();
+
   const { getUser } = getKindeServerSession();
   const user = await getUser();
 

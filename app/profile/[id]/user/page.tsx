@@ -6,6 +6,7 @@ import { ProfileBottom } from "@/app/components/ProfileBottom";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 async function getData(userId: string) {
+  noStore();
   const data = await prisma.user.findUnique({
     where: {
       id: userId,
@@ -25,7 +26,7 @@ export default async function MyProfile({
 }: {
   params: { id: string };
 }) {
-  noStore();
+  
   // const posts = [
   //   {
   //     type: "image",

@@ -11,7 +11,7 @@ import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 
 async function getData() {
-  
+  noStore();
   const [count, data] = await prisma.$transaction([
     prisma.post.count(),
     prisma.post.findMany({
@@ -49,6 +49,7 @@ async function getData() {
 }
 
 async function getBoolean(postId: string, userId: string) {
+  noStore();
   const like = await prisma.like.findFirst({
     where: {
       postId: postId,
@@ -64,6 +65,7 @@ async function getBoolean(postId: string, userId: string) {
 }
 
 async function getCommunityDetails(communityId: string) {
+  noStore();
   const data = await prisma.community.findUnique({
     where: {
       id: communityId,
@@ -78,6 +80,7 @@ async function getCommunityDetails(communityId: string) {
 }
 
 async function getTotalCommment(postId: string ) {
+  noStore();
   const count = await prisma.comment.count({
     where: {
       postId: postId,
@@ -88,7 +91,7 @@ async function getTotalCommment(postId: string ) {
 }
 
 export default async function Home() {
-  noStore();
+ 
   const loading = false;
   const { count, data } = await getData();
 

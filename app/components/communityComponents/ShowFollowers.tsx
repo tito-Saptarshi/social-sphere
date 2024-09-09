@@ -3,6 +3,7 @@ import prisma from "@/app/lib/db";
 import { unstable_noStore as noStore } from "next/cache";
 
 async function getData(communityId: string) {
+  noStore();
   const newCommunity = await prisma.post.count({
     where: {
       communityId: communityId,
@@ -57,7 +58,7 @@ async function getData(communityId: string) {
 }
 
 export function ShowCommunityFollowers() {
-  noStore();
+  
   return (
     <div>
       <button>followers: 0</button>
