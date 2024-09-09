@@ -8,46 +8,45 @@ import { FloatingActionButton } from "./components/FloatingActionButton";
 import prisma from "./lib/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 
-import { unstable_noStore as noStore } from "next/cache";
 import { Suspense } from "react";
 import { SuspenseCard } from "./components/SuspenseCard";
 
-// async function getData() {
-//   noStore();
-//   const [count, data] = await prisma.$transaction([
-//     prisma.post.count(),
-//     prisma.post.findMany({
-//       select: {
-//         id: true,
-//         title: true,
-//         description: true,
-//         imageUrl: true,
-//         videoUrl: true,
-//         createdAt: true,
-//         communityId: true,
-//         User: {
-//           select: {
-//             id: true,
-//             userName: true,
-//             imageUrl: true,
-//           },
-//         },
-//         Like: {
-//           select: {
-//             id: true,
-//             liked: true,
-//             userId: true,
-//           },
-//         },
-//       },
-//       orderBy: {
-//         createdAt: "desc",
-//       },
-//     }),
-//   ]);
+async function getData() {
 
-//   return { count, data };
-// }
+  const [count, data] = await prisma.$transaction([
+    prisma.post.count(),
+    prisma.post.findMany({
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        videoUrl: true,
+        createdAt: true,
+        communityId: true,
+        User: {
+          select: {
+            id: true,
+            userName: true,
+            imageUrl: true,
+          },
+        },
+        Like: {
+          select: {
+            id: true,
+            liked: true,
+            userId: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    }),
+  ]);
+
+  return { count, data };
+}
 
 // async function getBoolean(postId: string, userId: string) {
 //   noStore();
@@ -65,33 +64,37 @@ import { SuspenseCard } from "./components/SuspenseCard";
 //   return like;
 // }
 
-// async function getCommunityDetails(communityId: string) {
-//   noStore();
-//   const data = await prisma.community.findUnique({
-//     where: {
-//       id: communityId,
-//     },
-//     select: {
-//       name: true,
-//       id: true,
-//     },
-//   });
+async function getCommunityDetails(communityId: string) {
+ 
+  const data = await prisma.community.findUnique({
+    where: {
+      id: communityId,
+    },
+    select: {
+      name: true,
+      id: true,
+    },
+  });
 
-//   return data;
-// }
+  return data;
+}
 
-// async function getTotalCommment(postId: string) {
-//   noStore();
-//   const count = await prisma.comment.count({
-//     where: {
-//       postId: postId,
-//     },
-//   });
+async function getTotalCommment(postId: string) {
 
-//   return count;
-// }
+  const count = await prisma.comment.count({
+    where: {
+      postId: postId,
+    },
+  });
+
+  return count;
+}
 
 export default async function Home() {
+  const { count, data } = await getData();
+
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
 
   return (
     <div className="container mx-auto p-4 max-w-[1250px]">
@@ -129,12 +132,12 @@ export default async function Home() {
 }
 
 async function ShowItems() {
-  // const { count, data } = await getData();
-  // const { getUser } = getKindeServerSession();
-  // const user = await getUser();
+  const { count, data } = await getData();
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
   return (
     <>
-      {/* {data.map(async (post) => {
+      {data.map(async (post) => {
         const isLiked = post.Like.some(
           (like) => like.userId === user?.id && like.liked
         );
@@ -162,8 +165,7 @@ async function ShowItems() {
             commId={post.communityId ?? post.User.id}
           />
         );
-      })} */}
-      hello
+      })}
     </>
   );
 }
