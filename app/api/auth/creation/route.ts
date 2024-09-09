@@ -32,5 +32,9 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  return NextResponse.redirect("http://localhost:3000/");
+  return NextResponse.redirect(
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:3000/"
+      : "https://social-sphere-olive.vercel.app/"
+  );
 }

@@ -11,7 +11,7 @@ import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { unstable_noStore as noStore } from "next/cache";
 
 async function getData() {
-  noStore();
+   noStore();
   const [count, data] = await prisma.$transaction([
     prisma.post.count(),
     prisma.post.findMany({
