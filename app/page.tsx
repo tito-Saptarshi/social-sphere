@@ -9,9 +9,11 @@ import prisma from "./lib/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 
 import { unstable_noStore as noStore } from "next/cache";
+import { Suspense } from "react";
+import { SuspenseCard } from "./components/SuspenseCard";
 
 async function getData() {
-   noStore();
+  noStore();
   const [count, data] = await prisma.$transaction([
     prisma.post.count(),
     prisma.post.findMany({
@@ -41,28 +43,27 @@ async function getData() {
       orderBy: {
         createdAt: "desc",
       },
-      
     }),
   ]);
 
   return { count, data };
 }
 
-async function getBoolean(postId: string, userId: string) {
-  noStore();
-  const like = await prisma.like.findFirst({
-    where: {
-      postId: postId,
-      userId: userId,
-    },
-    select: {
-      liked: true,
-      id: true,
-    },
-  });
+// async function getBoolean(postId: string, userId: string) {
+//   noStore();
+//   const like = await prisma.like.findFirst({
+//     where: {
+//       postId: postId,
+//       userId: userId,
+//     },
+//     select: {
+//       liked: true,
+//       id: true,
+//     },
+//   });
 
-  return like;
-}
+//   return like;
+// }
 
 async function getCommunityDetails(communityId: string) {
   noStore();
@@ -73,13 +74,13 @@ async function getCommunityDetails(communityId: string) {
     select: {
       name: true,
       id: true,
-    }
+    },
   });
 
   return data;
 }
 
-async function getTotalCommment(postId: string ) {
+async function getTotalCommment(postId: string) {
   noStore();
   const count = await prisma.comment.count({
     where: {
@@ -91,8 +92,6 @@ async function getTotalCommment(postId: string ) {
 }
 
 export default async function Home() {
- 
-  const loading = false;
   const { count, data } = await getData();
 
   const { getUser } = getKindeServerSession();
@@ -115,42 +114,11 @@ export default async function Home() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <div className="md:col-span-2 lg:col-span-3 space-y-4">
-          {loading ? (
-            <p>Loading...</p>
-          ) : (
-            data.map(async (post) => {
-              const isLiked = post.Like.some(
-                (like) => like.userId === user?.id && like.liked
-              );
-              const totalComments = await getTotalCommment(post.id);
-              const commDet = await getCommunityDetails(post.communityId ?? "");
-              return (
-                <PostCard
-                  key={post.id}
-                  userId={post.User.id}
-                  id={post.id}
-                  userName={post.User.userName}
-                  profilePic={post.User.imageUrl}
-                  title={post.title}
-                  description={post.description}
-                  imageUrl={post.imageUrl}
-                  videoUrl={post.videoUrl}
-                  likeType={isLiked}
-                  totalLikes={post.Like.reduce((acc, vote) => {
-                    if (vote.liked) return acc + 1;
-
-                    return acc;
-                  }, 0)}
-                  totalComments={totalComments}
-                  comName={commDet?.name ?? "No Community"}
-                  commId={post.communityId ?? post.User.id}
-                />
-              );
-            })
-          )}
-          
+        <Suspense fallback={<SuspenseCard />}>
+          <ShowItems />
+        </Suspense>
         </div>
-       
+
         <div className="hidden md:block">
           <Card className="sticky top-4">
             <CardContent>
@@ -161,5 +129,44 @@ export default async function Home() {
       </div>
       <FloatingActionButton />
     </div>
+  );
+}
+
+async function ShowItems() {
+  const { count, data } = await getData();
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+  return (
+    <>
+      {data.map(async (post) => {
+        const isLiked = post.Like.some(
+          (like) => like.userId === user?.id && like.liked
+        );
+        const totalComments = await getTotalCommment(post.id);
+        const commDet = await getCommunityDetails(post.communityId ?? "");
+        return (
+          <PostCard
+            key={post.id}
+            userId={post.User.id}
+            id={post.id}
+            userName={post.User.userName}
+            profilePic={post.User.imageUrl}
+            title={post.title}
+            description={post.description}
+            imageUrl={post.imageUrl}
+            videoUrl={post.videoUrl}
+            likeType={isLiked}
+            totalLikes={post.Like.reduce((acc, vote) => {
+              if (vote.liked) return acc + 1;
+
+              return acc;
+            }, 0)}
+            totalComments={totalComments}
+            comName={commDet?.name ?? "No Community"}
+            commId={post.communityId ?? post.User.id}
+          />
+        );
+      })}
+    </>
   );
 }
