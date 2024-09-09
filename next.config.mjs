@@ -28,7 +28,12 @@ const nextConfig = {
         ]
     },
     
-
+    experimental: {
+        //...
+        serverless: {
+          timeout: 30, // Increase the timeout to 30 seconds
+        },
+      },
 
 };
 
