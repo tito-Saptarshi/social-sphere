@@ -25,55 +25,56 @@ export default async function MyProfile({
 }: {
   params: { id: string };
 }) {
-  const posts = [
-    {
-      type: "image",
-      content: "/placeholder.svg?height=300&width=300",
-      caption: "Beautiful sunset",
-      likes: 120,
-      comments: 15,
-    },
-    {
-      type: "video",
-      content: "/placeholder.svg?height=300&width=300",
-      caption: "My new dance routine",
-      likes: 89,
-      comments: 32,
-    },
-    {
-      type: "text",
-      content: "Just had an amazing day!",
-      caption: "",
-      likes: 56,
-      comments: 8,
-    },
-    {
-      type: "image",
-      content: "/placeholder.svg?height=300&width=300",
-      caption: "Delicious meal",
-      likes: 203,
-      comments: 28,
-    },
-    {
-      type: "text",
-      content: "Excited for the weekend!",
-      caption: "",
-      likes: 45,
-      comments: 5,
-    },
-    {
-      type: "video",
-      content: "/placeholder.svg?height=300&width=300",
-      caption: "Live concert footage",
-      likes: 178,
-      comments: 42,
-    },
-  ];
+  noStore();
+  // const posts = [
+  //   {
+  //     type: "image",
+  //     content: "/placeholder.svg?height=300&width=300",
+  //     caption: "Beautiful sunset",
+  //     likes: 120,
+  //     comments: 15,
+  //   },
+  //   {
+  //     type: "video",
+  //     content: "/placeholder.svg?height=300&width=300",
+  //     caption: "My new dance routine",
+  //     likes: 89,
+  //     comments: 32,
+  //   },
+  //   {
+  //     type: "text",
+  //     content: "Just had an amazing day!",
+  //     caption: "",
+  //     likes: 56,
+  //     comments: 8,
+  //   },
+  //   {
+  //     type: "image",
+  //     content: "/placeholder.svg?height=300&width=300",
+  //     caption: "Delicious meal",
+  //     likes: 203,
+  //     comments: 28,
+  //   },
+  //   {
+  //     type: "text",
+  //     content: "Excited for the weekend!",
+  //     caption: "",
+  //     likes: 45,
+  //     comments: 5,
+  //   },
+  //   {
+  //     type: "video",
+  //     content: "/placeholder.svg?height=300&width=300",
+  //     caption: "Live concert footage",
+  //     likes: 178,
+  //     comments: 42,
+  //   },
+  // ];
 
   const { getUser } = getKindeServerSession();
   const user = await getUser();
   const data = await getData(params.id);
-  noStore();
+  
   return (
     <div className="container mx-auto px-4 py-8">
       <ProfileTop
