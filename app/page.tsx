@@ -134,7 +134,7 @@ async function ShowItems() {
   const user = await getUser();
   return (
     <>
-      {data.map(async (post) => {
+      {/* {data.map(async (post) => {
         const isLiked = post.Like.some(
           (like) => like.userId === user?.id && like.liked
         );
@@ -162,7 +162,8 @@ async function ShowItems() {
             commId={post.communityId ?? post.User.id}
           />
         );
-      })}
+      })} */}
+      hello
     </>
   );
 }
