@@ -12,42 +12,42 @@ import { unstable_noStore as noStore } from "next/cache";
 import { Suspense } from "react";
 import { SuspenseCard } from "./components/SuspenseCard";
 
-async function getData() {
-  noStore();
-  const [count, data] = await prisma.$transaction([
-    prisma.post.count(),
-    prisma.post.findMany({
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        imageUrl: true,
-        videoUrl: true,
-        createdAt: true,
-        communityId: true,
-        User: {
-          select: {
-            id: true,
-            userName: true,
-            imageUrl: true,
-          },
-        },
-        Like: {
-          select: {
-            id: true,
-            liked: true,
-            userId: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    }),
-  ]);
+// async function getData() {
+//   noStore();
+//   const [count, data] = await prisma.$transaction([
+//     prisma.post.count(),
+//     prisma.post.findMany({
+//       select: {
+//         id: true,
+//         title: true,
+//         description: true,
+//         imageUrl: true,
+//         videoUrl: true,
+//         createdAt: true,
+//         communityId: true,
+//         User: {
+//           select: {
+//             id: true,
+//             userName: true,
+//             imageUrl: true,
+//           },
+//         },
+//         Like: {
+//           select: {
+//             id: true,
+//             liked: true,
+//             userId: true,
+//           },
+//         },
+//       },
+//       orderBy: {
+//         createdAt: "desc",
+//       },
+//     }),
+//   ]);
 
-  return { count, data };
-}
+//   return { count, data };
+// }
 
 // async function getBoolean(postId: string, userId: string) {
 //   noStore();
@@ -65,31 +65,31 @@ async function getData() {
 //   return like;
 // }
 
-async function getCommunityDetails(communityId: string) {
-  noStore();
-  const data = await prisma.community.findUnique({
-    where: {
-      id: communityId,
-    },
-    select: {
-      name: true,
-      id: true,
-    },
-  });
+// async function getCommunityDetails(communityId: string) {
+//   noStore();
+//   const data = await prisma.community.findUnique({
+//     where: {
+//       id: communityId,
+//     },
+//     select: {
+//       name: true,
+//       id: true,
+//     },
+//   });
 
-  return data;
-}
+//   return data;
+// }
 
-async function getTotalCommment(postId: string) {
-  noStore();
-  const count = await prisma.comment.count({
-    where: {
-      postId: postId,
-    },
-  });
+// async function getTotalCommment(postId: string) {
+//   noStore();
+//   const count = await prisma.comment.count({
+//     where: {
+//       postId: postId,
+//     },
+//   });
 
-  return count;
-}
+//   return count;
+// }
 
 export default async function Home() {
 
@@ -129,9 +129,9 @@ export default async function Home() {
 }
 
 async function ShowItems() {
-  const { count, data } = await getData();
-  const { getUser } = getKindeServerSession();
-  const user = await getUser();
+  // const { count, data } = await getData();
+  // const { getUser } = getKindeServerSession();
+  // const user = await getUser();
   return (
     <>
       {/* {data.map(async (post) => {
