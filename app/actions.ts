@@ -713,67 +713,67 @@ export async function createComment(prevState: any, formData: FormData) {
   }
 }
 
-export async function getDataActions(take: number, skip: number) {
-  const data = await prisma.post.findMany({
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      imageUrl: true,
-      videoUrl: true,
-      createdAt: true,
-      communityId: true,
-      User: {
-        select: {
-          id: true,
-          userName: true,
-          imageUrl: true,
-        },
-      },
-      Like: {
-        select: {
-          id: true,
-          liked: true,
-          userId: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-    take: take,
-    skip: skip,
-  });
+// export async function getDataActions(take: number, skip: number) {
+//   const data = await prisma.post.findMany({
+//     select: {
+//       id: true,
+//       title: true,
+//       description: true,
+//       imageUrl: true,
+//       videoUrl: true,
+//       createdAt: true,
+//       communityId: true,
+//       User: {
+//         select: {
+//           id: true,
+//           userName: true,
+//           imageUrl: true,
+//         },
+//       },
+//       Like: {
+//         select: {
+//           id: true,
+//           liked: true,
+//           userId: true,
+//         },
+//       },
+//     },
+//     orderBy: {
+//       createdAt: "desc",
+//     },
+//     take: take,
+//     skip: skip,
+//   });
 
-  return data;
-}
+//   return data;
+// }
 
-export async function getTotalCommmentAction(postId: string) {
-  const count = await prisma.comment.count({
-    where: {
-      postId: postId,
-    },
-  });
+// export async function getTotalCommmentAction(postId: string) {
+//   const count = await prisma.comment.count({
+//     where: {
+//       postId: postId,
+//     },
+//   });
 
-  return count;
-}
+//   return count;
+// }
 
-export async function getCommunityDetailsAction(communityId: string) {
-  const data = await prisma.community.findUnique({
-    where: {
-      id: communityId,
-    },
-    select: {
-      name: true,
-      id: true,
-    },
-  });
+// export async function getCommunityDetailsAction(communityId: string) {
+//   const data = await prisma.community.findUnique({
+//     where: {
+//       id: communityId,
+//     },
+//     select: {
+//       name: true,
+//       id: true,
+//     },
+//   });
 
-  return data;
-}
+//   return data;
+// }
 
-export async function getUserAction() {
-  const { getUser } = getKindeServerSession();
-  const user = await getUser();
-  return user;
-}
+// export async function getUserAction() {
+//   const { getUser } = getKindeServerSession();
+//   const user = await getUser();
+//   return user;
+// }
