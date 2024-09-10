@@ -1,7 +1,6 @@
 import { CommunityPosts } from "@/app/components/CommunityPosts";
 import prisma from "@/app/lib/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
-import Link from "next/link";
 
 import { unstable_noStore as noStore } from "next/cache";
 

@@ -24,75 +24,56 @@ import { CommunityFollowingDialog } from "./communityComponents/UserFollowCom";
 
 import { unstable_noStore as noStore } from "next/cache"
 
-async function getData(communityId: string | null | undefined) {
+// Consolidated function for fetching all required data
+async function getData(communityId: string | null | undefined, currUserId: string | null | undefined) {
   noStore();
-  const data = await prisma.post.findMany({
-    where: {
-      communityId: communityId,
-    },
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      imageUrl: true,
-      videoUrl: true,
-      createdAt: true,
-      communityId: true,
-      User: {
-        select: {
-          id: true,
-          userName: true,
-          imageUrl: true,
+  
+  // Running all Prisma queries in parallel using Promise.all for efficiency
+  const [posts, totalPosts, communityDetails] = await Promise.all([
+    prisma.post.findMany({
+      where: { communityId },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        videoUrl: true,
+        createdAt: true,
+        communityId: true,
+        User: {
+          select: {
+            id: true,
+            userName: true,
+            imageUrl: true,
+          },
+        },
+        Like: {
+          select: {
+            id: true,
+            liked: true,
+            userId: true,
+          },
+        },
+        _count: {
+          select: { Comment: true },
         },
       },
-      Like: {
-        select: {
-          id: true,
-          liked: true,
-          userId: true,
-        },
-      },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+      orderBy: { createdAt: "desc" },
+    }),
+    
+    // Count total posts
+    prisma.post.count({
+      where: { communityId },
+    }),
 
-  const totalPosts = await prisma.post.count({
-    where: {
-      communityId: communityId,
-    },
-  });
+    // Fetch community details
+    prisma.community.findUnique({
+      where: { id: communityId ?? "" },
+      select: { name: true, id: true },
+    })
+  ]);
 
-  return { data, totalPosts };
-}
-
-
-async function getCommunityDetails(communityId: string) {
-  noStore();
-  const data = await prisma.community.findUnique({
-    where: {
-      id: communityId,
-    },
-    select: {
-      name: true,
-      id: true,
-    }
-  });
-
-  return data;
-}
-
-
-async function getTotalCommment(postId: string) {
-  noStore();
-  const count = await prisma.comment.count({
-    where: {
-      postId: postId,
-    },
-  });
-
-  return count;
+  return { posts, totalPosts, communityDetails };
 }
 
 interface iAppProps {
@@ -121,13 +102,12 @@ export async function CommunityPosts({
   oldName,
 }: iAppProps) {
   const loading = false;
-  const { data, totalPosts } = await getData(communityId);
+  const { posts, totalPosts, communityDetails } = await getData(communityId, currUserId);
 
   return (
-    <div className="max-w-[1300px] mx-auto flex gap-x-10 mt-4 mb-10 ">
+    <div className="max-w-[1300px] mx-auto flex gap-x-10 mt-4 mb-10">
       <div className="w-full lg:w-[65%] flex flex-col gap-y-5">
         <div className="flex justify-between px-4 items-center">
-          
           <Dialog>
             <DialogTrigger><span className="text-xl">{name}</span></DialogTrigger>
             <DialogContent>
@@ -137,27 +117,22 @@ export async function CommunityPosts({
                     <Avatar className="my-8 h-56 w-56">
                       <AvatarImage
                         src={imageUrl ?? `https://avatar.vercel.sh/${name}`}
-                        alt="@shadcn"
+                        alt={name ?? "community-avatar"}
                       />
                       <AvatarFallback>JD</AvatarFallback>
                     </Avatar>
                   </div>
 
                   <div className="flex justify-between">
-                    <p className="font-extrabold ">
-                      <span className="text-muted-foreground">Posts: </span>{" "}
-                      {totalPosts}
+                    <p className="font-extrabold">
+                      <span className="text-muted-foreground">Posts: </span> {totalPosts}
                     </p>
                     <span className="text-muted-foreground">
-                      <CommunityFollowingDialog
-                        communityId={communityId ?? ""}
-                      />
+                      <CommunityFollowingDialog communityId={communityId ?? ""} />
                     </span>
                   </div>
                   <div className="flex flex-col py-5 gap-y-3">
-                    <Link
-                      href={`/community/${oldName}/post/create/${communityId}`}
-                    >
+                    <Link href={`/community/${oldName}/post/create/${communityId}`}>
                       <Button> Create Post</Button>
                     </Link>
                     <Separator className="my-1" />
@@ -166,7 +141,6 @@ export async function CommunityPosts({
                       <Dialog>
                         <DialogTrigger asChild className="mt-10">
                           <Button className="py-1 px-1 rounded-full">
-                            {" "}
                             <Edit className="w-4 h-4 mx-2" /> Edit Description
                           </Button>
                         </DialogTrigger>
@@ -175,7 +149,7 @@ export async function CommunityPosts({
                             <DialogTitle>Update Description</DialogTitle>
                             <Separator />
                             <DialogDescription>
-                              Update Description of Community : {name}
+                              Update Description of Community: {name}
                             </DialogDescription>
                             <CommunityDescription
                               communityId={communityId}
@@ -189,23 +163,17 @@ export async function CommunityPosts({
                       </Dialog>
                     ) : (
                       <Button disabled className="py-1 px-1 rounded-full">
-                        {" "}
                         <Edit className="w-4 h-4 mx-2" /> Edit
                       </Button>
                     )}
                   </div>
-                  <div className="flex flex-row justify-end ">
+                  <div className="flex flex-row justify-end">
                     {userId === currUserId ? (
-                      <Link
-                        href={`/community/${communityId}/settings`}
-                        className="flex items-center"
-                      >
+                      <Link href={`/community/${communityId}/settings`} className="flex items-center">
                         <p className="mr-1">settings</p>
                         <SettingsIcon className="h-4 w-4" />
                       </Link>
-                    ) : (
-                      <></>
-                    )}
+                    ) : null}
                   </div>
                 </div>
               </DialogHeader>
@@ -232,12 +200,10 @@ export async function CommunityPosts({
           {loading ? (
             <p>Loading...</p>
           ) : (
-            data.map( async (post) => {
+            posts.map((post) => {
               const isLiked = post.Like.some(
                 (like) => like.userId === currUserId && like.liked
               );
-              const totalComments = await getTotalCommment(post.id);
-              const commDet = await getCommunityDetails(post.communityId ?? "");
               return (
                 <PostCard
                   key={post.id}
@@ -250,21 +216,17 @@ export async function CommunityPosts({
                   imageUrl={post.imageUrl}
                   videoUrl={post.videoUrl}
                   likeType={isLiked}
-                  totalLikes={post.Like.reduce((acc, vote) => {
-                    if (vote.liked) return acc + 1;
-
-                    return acc;
-                  }, 0)}
-                  totalComments={totalComments}
-                  comName={commDet?.name ?? ""}
-                  commId={commDet?.id ?? post.User.id}
+                  totalLikes={post.Like.reduce((acc, vote) => (vote.liked ? acc + 1 : acc), 0)}
+                  totalComments={post._count.Comment}
+                  comName={communityDetails?.name ?? ""}
+                  commId={communityDetails?.id ?? post.User.id}
                 />
               );
             })
           )}
         </div>
       </div>
-      {/*community side bar */}
+      {/* community side bar */}
       <div className="w-[35%] hidden lg:block">
         <Card className="min-h-96">
           <div className="bg-muted p-4 font-semibold flex justify-between gap-x-5">
@@ -280,24 +242,6 @@ export async function CommunityPosts({
 
           <div className="p-4">
             <div className="flex flex-col gap-y-5 items-center justify-center gap-x-3">
-              {/* {userId === currUserId ? (
-                <UploadDropzone
-                className=" border-0 ut-button:bg-primary ut-button:ut-readying:bg-primary/50 ut-label:text-primary ut-button:ut-uploading:bg-primary/50 ut-button:ut-uploading:after:bg-primary
-                ut-upload-icon:
-                ut-label:hidden
-                ut-allowed-content:hidden"
-                ut-upload-icon={`https://avatar.vercel.sh/${name}`} 
-                endpoint="imageUploader"
-                onClientUploadComplete={(res) => {
-                  console.log(res);
-                }}
-              />
-              ) : (
-                <Button variant="outline" disabled size="sm">
-                  <UploadIcon className="mr-2 h-4 w-4 " />
-                  Upload Photo
-                </Button>
-              )} */}
               <Avatar className="my-8 h-56 w-56">
                 <AvatarImage
                   src={imageUrl ?? `https://avatar.vercel.sh/${name}`}
@@ -306,26 +250,9 @@ export async function CommunityPosts({
                 <AvatarFallback>JD</AvatarFallback>
               </Avatar>
             </div>
-
-            {/* {userId === currUserId ? (
-              <CommunityDescription
-                communityId={communityId}
-                name={name}
-                description={description}
-                creator={true}
-              />
-            ) : (
-              <CommunityDescription
-                communityId={communityId}
-                name={name}
-                description={description}
-                creator={false}
-              />
-            )} */}
             <div className="flex justify-between">
-              <p className="font-extrabold ">
-                <span className="text-muted-foreground">Posts: </span>{" "}
-                {totalPosts}
+              <p className="font-extrabold">
+                <span className="text-muted-foreground">Posts: </span> {totalPosts}
               </p>
               <span className="text-muted-foreground">
                 <CommunityFollowingDialog communityId={communityId ?? ""} />
@@ -341,7 +268,6 @@ export async function CommunityPosts({
                 <Dialog>
                   <DialogTrigger asChild className="mt-10">
                     <Button className="py-1 px-1 rounded-full">
-                      {" "}
                       <Edit className="w-4 h-4 mx-2" /> Edit Description
                     </Button>
                   </DialogTrigger>
@@ -350,7 +276,7 @@ export async function CommunityPosts({
                       <DialogTitle>Update Description</DialogTitle>
                       <Separator />
                       <DialogDescription>
-                        Update Description of Community : {name}
+                        Update Description of Community: {name}
                       </DialogDescription>
                       <CommunityDescription
                         communityId={communityId}
@@ -364,7 +290,6 @@ export async function CommunityPosts({
                 </Dialog>
               ) : (
                 <Button disabled className="py-1 px-1 rounded-full">
-                  {" "}
                   <Edit className="w-4 h-4 mx-2" /> Edit
                 </Button>
               )}
