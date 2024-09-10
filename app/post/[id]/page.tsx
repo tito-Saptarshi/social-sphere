@@ -1,79 +1,69 @@
-import { RenderComments } from "@/app/components/Comments/CommentRender";
+
 import { IndividualPost } from "@/app/components/Post/IndivdualPost";
 import prisma from "@/app/lib/db";
-import { Card } from "@/components/ui/card";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { redirect } from "next/navigation";
-
 import { unstable_noStore as noStore } from "next/cache";
 
-async function getData(postId: string) {
+async function getPostAndComments(postId: string) {
   noStore();
-  const data = await prisma.post.findUnique({
-    where: {
-      id: postId,
-    },
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      imageUrl: true,
-      videoUrl: true,
-      createdAt: true,
-      User: {
-        select: {
-          id: true,
-          userName: true,
-          imageUrl: true,
+  
+  // Prisma transaction to fetch post, comments, and total comment count in one go
+  const [post, comments, totalComments] = await prisma.$transaction([
+    prisma.post.findUnique({
+      where: {
+        id: postId,
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        imageUrl: true,
+        videoUrl: true,
+        createdAt: true,
+        User: {
+          select: {
+            id: true,
+            userName: true,
+            imageUrl: true,
+          },
+        },
+        Like: {
+          select: {
+            id: true,
+            liked: true,
+            userId: true,
+          },
         },
       },
-      Like: {
-        select: {
-          id: true,
-          liked: true,
-          userId: true,
+    }),
+    prisma.comment.findMany({
+      where: {
+        postId: postId,
+      },
+      select: {
+        id: true,
+        text: true,
+        User: {
+          select: {
+            id: true,
+            userName: true,
+            imageUrl: true,
+          },
         },
       },
-    },
-  });
-
-  return data;
-}
-
-async function getComment(postId: string) {
-  noStore();
-  const data = await prisma.comment.findMany({
-    where: {
-      postId: postId,
-    },
-    select: {
-      id: true,
-      text: true,
-      User: {
-        select: {
-          id: true,
-          userName: true,
-          imageUrl: true,
-        },
+      orderBy: {
+        createdAt: "desc",
       },
-    },
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+    }),
+    prisma.comment.count({
+      where: {
+        postId: postId,
+      },
+    }),
+  ]);
 
-  return data;
-}
-
-async function getTotalCommment(postId: string) {
-  noStore();
-  const count = await prisma.comment.count({
-    where: {
-      postId: postId,
-    },
-  });
-
-  return count;
+  return { post, comments, totalComments };
 }
 
 export default async function PostPageSingle({
@@ -81,15 +71,15 @@ export default async function PostPageSingle({
 }: {
   params: { id: string };
 }) {
-
   const { getUser } = getKindeServerSession();
   const user = await getUser();
 
-  const post = await getData(params.id);
+  // Get the post, comments, and total comments in one go
+  const { post, comments, totalComments } = await getPostAndComments(params.id);
+  
   if (!post) redirect("/");
 
-  const comments = await getComment(params.id);
-  const totalComments = await getTotalCommment(params.id);
+  // Check if the current user has liked the post
   const isLiked = post.Like.some(
     (like) => like.userId === user?.id && like.liked
   );
@@ -106,11 +96,7 @@ export default async function PostPageSingle({
         imageUrl={post.imageUrl}
         videoUrl={post.videoUrl}
         likeType={isLiked}
-        totalLikes={post.Like.reduce((acc, vote) => {
-          if (vote.liked) return acc + 1;
-
-          return acc;
-        }, 0)}
+        totalLikes={post.Like.reduce((acc, like) => like.liked ? acc + 1 : acc, 0)}
         currUserId={user?.id}
         comments={comments}
         totalComments={totalComments}
