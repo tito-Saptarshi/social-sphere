@@ -10,7 +10,7 @@ import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 
 import { Suspense } from "react";
 import { SuspenseCard } from "./components/SuspenseCard";
-
+import { unstable_noStore as noStore } from "next/cache";
 // async function getData() {
 
 //   const [count, data] = await prisma.$transaction([
@@ -90,6 +90,7 @@ import { SuspenseCard } from "./components/SuspenseCard";
 // }
 
 async function getData() {
+  noStore();
   const data = await prisma.$transaction([
     prisma.post.findMany({
       select: {
