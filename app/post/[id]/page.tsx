@@ -96,6 +96,7 @@ export default async function PostPageSingle({
         imageUrl={post.imageUrl}
         videoUrl={post.videoUrl}
         likeType={isLiked}
+        createdAt={post.createdAt}
         totalLikes={post.Like.reduce((acc, like) => like.liked ? acc + 1 : acc, 0)}
         currUserId={user?.id}
         comments={comments}

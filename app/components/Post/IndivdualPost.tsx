@@ -50,6 +50,7 @@ interface Props {
   currUserId: string | undefined;
   comments: any;
   totalComments: number;
+  createdAt: Date;
 }
 
 const images = [
@@ -72,6 +73,7 @@ export function IndividualPost({
   currUserId,
   comments,
   totalComments,
+  createdAt
 }: Props) {
   const [isVideoVisible, setIsVideoVisible] = useState(!!videoUrl); // Initialize based on videoUrl presence
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -136,7 +138,7 @@ export function IndividualPost({
             <div className="flex flex-col">
               <p className="text-lg font-semibold">@{userName}</p>
               <p className="text-sm text-muted-foreground">
-                Posted 2 hours ago
+              Posted {createdAt.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
               </p>
             </div>
             {currUserId === userId ? (
