@@ -9,7 +9,6 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import {
   HeartIcon,
   MessageCircleIcon,
@@ -31,10 +30,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { CommunityDescription } from "../CommunityDescription";
+
 import { PostUpdate } from "./PostUpdate";
 import { CommentForm } from "../Comments/CommentForm";
 import { RenderComments } from "../Comments/CommentRender";
+import { CopyLink } from "../CopyLink";
 
 interface Props {
   id: string;
@@ -71,10 +71,8 @@ export function IndividualPost({
   likeType,
   currUserId,
   comments,
-  totalComments
+  totalComments,
 }: Props) {
-  const [commentText, setCommentText] = useState("");
-
   const [isVideoVisible, setIsVideoVisible] = useState(!!videoUrl); // Initialize based on videoUrl presence
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [newLikes, setNewLikes] = useState(totalLikes);
@@ -273,14 +271,7 @@ export function IndividualPost({
             <MessageCircleIcon className="h-5 w-5" />
             <span>{totalComments} Comments</span>
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="flex items-center space-x-1"
-          >
-            <ShareIcon className="h-5 w-5" />
-            <span>Share</span>
-          </Button>
+          <CopyLink id={id} />
         </div>
         {/* <div className="w-full">
           <Input
@@ -291,15 +282,16 @@ export function IndividualPost({
         </div> */}
         <CommentForm postId={id} />
         {comments.map((comment: any) => {
-        return (
-          <RenderComments key={comment.id}
-          userName={comment.User?.userName}
-          comment={comment.text}
-          imageUrl={comment.User?.imageUrl}
-          userId={comment.User?.id}/>
-          
-        )
-      })}
+          return (
+            <RenderComments
+              key={comment.id}
+              userName={comment.User?.userName}
+              comment={comment.text}
+              imageUrl={comment.User?.imageUrl}
+              userId={comment.User?.id}
+            />
+          );
+        })}
         {/* <div className="w-full space-y-2">
           <div className="flex items-start space-x-2">
             <Avatar className="w-8 h-8">

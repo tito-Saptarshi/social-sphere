@@ -12,6 +12,7 @@ import { createPost } from "@/app/actions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UploadDropzone } from "./Uploadthing";
 import Image from "next/image";
+import { SubmitPostButton } from "./SubmitButtons";
 interface Props {
   userId: string | undefined;
   userName: string | null | undefined;
@@ -163,9 +164,10 @@ export function NewPost({ userId, userName }: Props) {
                     </Card>
                   </TabsContent>
                 </Tabs>
-                <Button type="submit" className="w-full">
+                {/* <Button type="submit" className="w-full">
                   Post
-                </Button>
+                </Button> */}
+                <SubmitPostButton text="Post" />
               </form>
             </CardContent>
           </Card>

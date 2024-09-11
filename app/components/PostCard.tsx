@@ -22,6 +22,7 @@ import {
 import Image from "next/image";
 import { likesCount, postLikes } from "../actions";
 import Link from "next/link";
+import { CopyLink } from "./CopyLink";
 
 interface Props {
   id: string;
@@ -105,8 +106,8 @@ export function PostCard({
 
   return (
     <Card className="mb-4 lg:mr-5 mx-auto w-full lg:w-4/5">
-      <Link href={`/profile/${userId}/user`}>
-        <CardHeader className="flex flex-row items-center gap-4">
+      <CardHeader className="flex flex-row items-center gap-4">
+        <Link href={`/profile/${userId}/user`}>
           <Avatar>
             <AvatarImage
               src={profilePic ?? "/placeholder.svg"}
@@ -114,15 +115,18 @@ export function PostCard({
             />
             <AvatarFallback>{userName}</AvatarFallback>
           </Avatar>
-          <div>
-            <h3 className="font-bold">{userName}</h3>
-            {/* <p className="text-sm text-muted-foreground">
+        </Link>
+        <div>
+          <Link href={`/profile/${userId}/user`}>
+            <h3 className="font-bold hover:font-extrabold">{userName}</h3>
+          </Link>
+          {/* <p className="text-sm text-muted-foreground">
               {boolLikes ? "true" : "false"}
             </p>
             <p className="text-sm text-muted-foreground">
               {likeType ? "true fetch" : "false fetch"}
-            </p> */}
-
+              </p> */}
+          <Link href={`/community/${comName}`}>
             <p className="flex text-sm text-muted-foreground items-center">
               {comName !== "No Community" ? (
                 <>
@@ -133,47 +137,49 @@ export function PostCard({
                 <></>
               )}
             </p>
-          </div>
-        </CardHeader>
-      </Link>
-      <Link href={`/post/${id}`}>
-        <CardContent className="space-y-4">
+          </Link>
+        </div>
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        <Link href={`/post/${id}`}>
           <h4 className="font-bold text-lg">{title}</h4>
+        </Link>
 
-          {(videoUrl || imageUrl) && (
-            <div className="relative w-full h-[300px] lg:h-[400px] bg-black overflow-hidden">
-              {videoUrl && isVideoVisible ? (
-                <video
-                  ref={videoRef}
-                  className="absolute inset-0 w-full h-full object-contain"
-                  controls
-                  src={`https://jgpzentnejvbbjcrtjnu.supabase.co/storage/v1/object/public/images/${videoUrl}`}
-                  onError={(e) => console.error("Error playing video:", e)}
-                />
-              ) : imageUrl ? (
-                <Image
-                  src={imageUrl}
-                  alt={title}
-                  className="absolute inset-0 w-full h-full object-contain"
-                  layout="fill"
-                />
-              ) : null}
+        {(videoUrl || imageUrl) && (
+          <div className="relative w-full h-[300px] lg:h-[400px] bg-black overflow-hidden">
+            {videoUrl && isVideoVisible ? (
+              <video
+                ref={videoRef}
+                className="absolute inset-0 w-full h-full object-contain"
+                controls
+                src={`https://jgpzentnejvbbjcrtjnu.supabase.co/storage/v1/object/public/images/${videoUrl}`}
+                onError={(e) => console.error("Error playing video:", e)}
+              />
+            ) : imageUrl ? (
+              <Image
+                src={imageUrl}
+                alt={title}
+                className="absolute inset-0 w-full h-full object-contain"
+                layout="fill"
+              />
+            ) : null}
 
-              {imageUrl && videoUrl && (
-                <button
-                  className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-200"
-                  onClick={handleToggleMedia}
-                >
-                  {isVideoVisible ? (
-                    <MoveRight className="w-5 h-5 bg-slate-500 rounded-full p-1" />
-                  ) : (
-                    <MoveRight className="w-5 h-5 bg-slate-500 rounded-full p-1" />
-                  )}
-                </button>
-              )}
-            </div>
-          )}
-
+            {imageUrl && videoUrl && (
+              <button
+                className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white p-2 rounded-full shadow-md hover:bg-gray-200"
+                onClick={handleToggleMedia}
+              >
+                {isVideoVisible ? (
+                  <MoveRight className="w-5 h-5 bg-slate-500 rounded-full p-1" />
+                ) : (
+                  <MoveRight className="w-5 h-5 bg-slate-500 rounded-full p-1" />
+                )}
+              </button>
+            )}
+          </div>
+        )}
+        <Link href={`/post/${id}`}>
           <p>
             {expanded ? description : `${description?.slice(0, 100)}...`}
             {description && description.length > 100 && (
@@ -185,8 +191,9 @@ export function PostCard({
               </button>
             )}
           </p>
-        </CardContent>
-      </Link>
+        </Link>
+      </CardContent>
+
       <CardFooter className="flex justify-between">
         <div className="flex space-x-2">
           <form onSubmit={likePost}>
@@ -209,10 +216,7 @@ export function PostCard({
               {/* Replace with actual comment count */} {totalComments}
             </Button>
           </Link>
-          <Button variant="ghost" size="sm">
-            <ShareIcon className="w-5 h-5 mr-1" />
-            Share
-          </Button>
+          <CopyLink id={id} />
         </div>
       </CardFooter>
     </Card>

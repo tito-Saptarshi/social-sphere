@@ -11,6 +11,7 @@ import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { Suspense } from "react";
 import { SuspenseCard } from "./components/SuspenseCard";
 import { unstable_noStore as noStore } from "next/cache";
+import Pagination from "./components/Pagination";
 // async function getData() {
 
 //   const [count, data] = await prisma.$transaction([
@@ -48,7 +49,7 @@ import { unstable_noStore as noStore } from "next/cache";
 //   return { count, data };
 // }
 // async function getCommunityDetails(communityId: string) {
- 
+
 //   const data = await prisma.community.findUnique({
 //     where: {
 //       id: communityId,
@@ -89,10 +90,12 @@ import { unstable_noStore as noStore } from "next/cache";
 //   return like;
 // }
 
-async function getData() {
+async function getData(searchParam: String) {
   noStore();
   const data = await prisma.$transaction([
     prisma.post.findMany({
+      take: 5,
+      skip: searchParam ? (Number(searchParam) - 1) * 5 : 0,
       select: {
         id: true,
         title: true,
@@ -154,8 +157,11 @@ async function getData() {
   return { count: postCount, posts: postsWithDetails };
 }
 
-
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: { page: string };
+}) {
   // const { count, data } = await getData();
 
   // const { getUser } = getKindeServerSession();
@@ -178,9 +184,9 @@ export default async function Home() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <div className="md:col-span-2 lg:col-span-3 space-y-4">
-        <Suspense fallback={<SuspenseCard />}>
-          <ShowItems />
-        </Suspense>
+          <Suspense fallback={<SuspenseCard />} key={searchParams.page}>
+            <ShowItems searchParams={searchParams} />
+          </Suspense>
         </div>
 
         <div className="hidden md:block">
@@ -235,8 +241,8 @@ export default async function Home() {
 //   );
 // }
 
-async function ShowItems() {
-  const { posts } = await getData();
+async function ShowItems({ searchParams }: { searchParams: { page: string } }) {
+  const { posts, count } = await getData(searchParams.page);
   const { getUser } = getKindeServerSession();
   const user = await getUser();
 
@@ -266,7 +272,8 @@ async function ShowItems() {
           />
         );
       })}
+
+      <Pagination totalPages={Math.ceil(count / 5)} />
     </>
   );
 }
-
