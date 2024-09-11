@@ -124,8 +124,8 @@ export async function Navbar() {
                 className="flex items-center gap-2 text-lg font-semibold"
                 prefetch={false}
               >
-                <FacebookIcon className="h-6 w-6" />
-                <span>Social App</span>
+                <SphereEnergyIcon className="h-6 w-6" />
+                <span>Social Sphere</span>
               </Link>
               <nav className="grid gap-2">
                 <Link
