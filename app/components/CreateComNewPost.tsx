@@ -12,6 +12,7 @@ import { createCommunityPost, createPost } from "@/app/actions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { UploadDropzone } from "./Uploadthing";
 import Image from "next/image";
+import { SubmitButton } from "./SubmitButtons";
 interface Props {
   userId: string | undefined;
   userName: string | null | undefined;
@@ -164,9 +165,8 @@ export function CreateComNewPost({ userId, userName, communityId }: Props) {
                     </Card>
                   </TabsContent>
                 </Tabs>
-                <Button type="submit" className="w-full">
-                  Post
-                </Button>
+                <SubmitButton text="Post"/>
+                 
               </form>
             </CardContent>
           </Card>
