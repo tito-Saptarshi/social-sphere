@@ -61,7 +61,6 @@ export function PostUpdate({ postId, title, description }: Props) {
         <Label>Description</Label>
         <Textarea
           placeholder="Update description"
-          maxLength={100}
           name="description"
           defaultValue={description || undefined}
           className="mb-3 mt-2 min-h-[150px]"

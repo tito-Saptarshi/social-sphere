@@ -25,19 +25,22 @@ async function getData(userId: string) {
 
 const CreateOptions = () => (
   <div className="flex justify-center space-x-4">
-    <Button variant="outline" size="icon" className="w-12 h-12 rounded-full">
-      <PenIcon className="h-6 w-6" />
-      <span className="sr-only">Create Post</span>
-    </Button>
-    <Button variant="outline" size="icon" className="w-12 h-12 rounded-full">
-      <UsersIcon className="h-6 w-6" />
-      <span className="sr-only">Create Group</span>
-    </Button>
+    <Link href={`/post/create`}>
+      <Button variant="outline" size="icon" className="w-12 h-12 rounded-full">
+        <PenIcon className="h-6 w-6" />
+        <span className="sr-only">Create Post</span>
+      </Button>
+    </Link>
+    <Link href={`/community/create`}>
+      <Button variant="outline" size="icon" className="w-12 h-12 rounded-full">
+        <UsersIcon className="h-6 w-6" />
+        <span className="sr-only">Create Group</span>
+      </Button>
+    </Link>
   </div>
 );
 
 export async function RightSidebar() {
-
   let loading = false;
   const { getUser } = getKindeServerSession();
   const user = await getUser();
@@ -61,9 +64,11 @@ export async function RightSidebar() {
               />
               <AvatarFallback>UN</AvatarFallback>
             </Avatar>
-            <h2 className="text-xl font-bold">{data?.userName}</h2>
-            <Link href={`profile/${user?.id}/user`}>
-              <p className="flex text-sm text-muted-foreground hover:cursor-pointer items-center justify-end">
+            <Link href={`/profile/${user?.id}/user`}>
+            <h2 className="text-xl font-bold hover:font-extrabold">{data?.userName}</h2>
+            </Link>
+            <Link href={`profile`}>
+              <p className="flex text-sm text-muted-foreground hover:cursor-pointer hover:font-bold items-center justify-end">
                 <User className="h-4 w-4 mx-1" />
                 update profile
               </p>

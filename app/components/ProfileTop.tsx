@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MessageCircle, User, UserPlus } from "lucide-react";
+import { MessageCircle, SettingsIcon, User, UserPlus } from "lucide-react";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import prisma from "../lib/db";
 import { followUser, unfollowUser } from "../actions";
@@ -109,7 +109,6 @@ export async function ProfileTop({
   userName,
   bio,
 }: Props) {
-
   const { getUser } = getKindeServerSession();
   const data = await getUser();
   const user = await getData(id);
@@ -157,15 +156,15 @@ export async function ProfileTop({
             Sharing my adventures one post at a time! 📸✈️🍔
           </p> */}
         <p className="text-gray-600 mb-4 max-w-md">{bio}</p>
-        <div className="flex justify-center md:justify-start space-x-4 mb-4">
+        <div className="flex justify-center md:justify-start space-x-4 mb-4 items-center">
           <FollowUserFun
             followerId={currUserId}
             followingId={id}
             currentlyFollowing={currentlyFollowing}
           />
-          <Button variant="outline" disabled>
-            <MessageCircle className="mr-2 h-4 w-4" /> Message
-          </Button>
+          <Link href={`/profile`}>
+            <SettingsIcon />
+          </Link>
         </div>
         <div className="flex justify-center md:justify-start space-x-8">
           <div>

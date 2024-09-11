@@ -25,25 +25,26 @@ import { UserDropdown } from "./UserDropdown";
 function SphereIcon(props: any) {
   return (
     <svg
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <circle cx="12" cy="12" r="8" />
-    <path d="M4.2 15.5C5.5 18 8 20 12 20s6.5-2 7.8-4.5" />
-    <path d="M4.2 8.5C5.5 6 8 4 12 4s6.5 2 7.8 4.5" />
-    <path d="M2 12h20" />
-  </svg>
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="8" />
+      <path d="M4.2 15.5C5.5 18 8 20 12 20s6.5-2 7.8-4.5" />
+      <path d="M4.2 8.5C5.5 6 8 4 12 4s6.5 2 7.8 4.5" />
+      <path d="M2 12h20" />
+    </svg>
   );
 }
-import styles from './Navbar.module.css';
+import styles from "./Navbar.module.css";
+import { PencilIcon, User2Icon } from "lucide-react";
 
 function SphereEnergyIcon(props: any) {
   return (
@@ -68,7 +69,6 @@ function SphereEnergyIcon(props: any) {
   );
 }
 
-
 export async function Navbar() {
   const { getUser } = getKindeServerSession();
   const user = await getUser();
@@ -80,14 +80,14 @@ export async function Navbar() {
           className="flex items-center gap-2 text-lg font-semibold"
           prefetch={false}
         >
-            <SphereEnergyIcon className="h-6 w-6" />
-            <span className="sr-only">Social-Sphere</span>
+          <SphereEnergyIcon className="h-6 w-6" />
+          <span className="sr-only">Social-Sphere</span>
         </Link>
 
         <nav className="hidden items-center gap-4 sm:flex">
           <ModeToggle />
           <Link
-            href="/"
+            href="/community/all"
             className="p-2 rounded-full hover:bg-muted transition"
             prefetch={false}
           >
@@ -95,14 +95,7 @@ export async function Navbar() {
             <span className="sr-only">Home</span>
           </Link>
 
-          <Link
-            href="/"
-            className="p-2 rounded-full hover:bg-muted transition"
-            prefetch={false}
-          >
-            <MessageCircleIcon className="h-5 w-5 text-muted-foreground" />
-            <span className="sr-only">Messages</span>
-          </Link>
+          
 
           {user ? (
             <UserDropdown userImage={user.picture} />
@@ -143,23 +136,42 @@ export async function Navbar() {
                   <HomeIcon className="h-5 w-5" />
                   <span>Home</span>
                 </Link>
+                {user ? (
+                  <>
+                    <Link
+                      href="/community/all"
+                      className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                      prefetch={false}
+                    >
+                      <User2Icon className="h-5 w-5" />
+                      <span>All communities</span>
+                    </Link>
+                  </>
+                ) : (
+                  <></>
+                )}
                 <Link
-                  href="/"
+                  href="/post/create"
                   className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
                   prefetch={false}
                 >
-                  <BellIcon className="h-5 w-5" />
-                  <span>Notifications</span>
+                  <PencilIcon className="h-5 w-5" />
+                  <span>Create Post</span>
                 </Link>
-                <Link
-                  href="/"
-                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
-                  prefetch={false}
-                >
-                  <MessageCircleIcon className="h-5 w-5" />
-                  <span>Messages</span>
-                </Link>
-                
+                <div>
+                  {user ? (
+                    <UserDropdown userImage={user.picture} />
+                  ) : (
+                    <div className="flex flex-col gap-x-4 gap-y-3 mt-5">
+                      <Button variant="secondary" asChild>
+                        <RegisterLink>Sign up</RegisterLink>
+                      </Button>
+                      <Button asChild>
+                        <LoginLink>Log in</LoginLink>
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </nav>
             </div>
           </SheetContent>
