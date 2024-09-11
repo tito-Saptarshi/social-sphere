@@ -49,7 +49,7 @@ export function NewPost({ userId, userName }: Props) {
 
   return (
     <div className="flex flex-col min-h-dvh">
-      <header className="bg-background border-b px-4 lg:px-6 h-14 flex items-center">
+      {/* <header className="bg-background border-b px-4 lg:px-6 h-14 flex items-center">
         <Link
           href="/"
           className="flex items-center justify-center"
@@ -83,7 +83,7 @@ export function NewPost({ userId, userName }: Props) {
             <User className="justify-center h-5 w-5" />
           </Link>
         </nav>
-      </header>
+      </header> */}
       {/* ----------- main form -----------------*/}
       <main className="flex-1 py-8 px-4 md:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto">
