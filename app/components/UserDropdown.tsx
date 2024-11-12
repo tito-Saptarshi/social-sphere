@@ -33,17 +33,17 @@ import {
   
         <DropdownMenuContent align="end" className="w-[200px]">
           <DropdownMenuItem>
-            <Link className="w-full" href="/r/create">
-              Create Community
+            <Link className="w-full" href="/community/create">
+              Create Group
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <Link className="w-full" href="/create">
+            <Link className="w-full" href="/post/create">
               Create Post
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <Link className="w-full" href="/settings">
+            <Link className="w-full" href="/profile">
               Settings
             </Link>
           </DropdownMenuItem>
